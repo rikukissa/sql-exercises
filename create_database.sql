@@ -2,6 +2,7 @@ CREATE USER exercises WITH PASSWORD "super_secret_database_password";
 CREATE DATABASE exercises;
 GRANT ALL PRIVILEGES ON DATABASE "exercises" to exercises;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO exercises;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES in schema public to exercises;
 
 \connect exercises
 
