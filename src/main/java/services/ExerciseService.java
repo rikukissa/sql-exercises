@@ -1,12 +1,12 @@
 package services;
 
-import org.postgresql.util.PSQLException;
+import fj.data.Either;
+import fj.data.Option;
 import org.sql2o.Connection;
 import org.sql2o.Sql2oException;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 public class ExerciseService {
   public static class Exercise {
@@ -36,7 +36,7 @@ public class ExerciseService {
     }
   }
 
-  public static Optional<Exercise> getExerciseById(int id) {
+  public static Either<Sql2oException, Option<Exercise>> getExerciseById(int id) {
     String sql = "SELECT * FROM exercise where id = :id";
 
     try(Connection con = DatabaseService.getConnection()) {
@@ -47,14 +47,16 @@ public class ExerciseService {
         .executeAndFetch(Exercise.class);
 
       if(exercises.size() == 0) {
-        return Optional.empty();
+        return Either.right(Option.none());
       }
 
-      return Optional.of(exercises.get(0));
+      return Either.right(Option.some(exercises.get(0)));
+    } catch (Sql2oException err) {
+      return Either.left(err);
     }
   }
 
-  public static Optional<Exercise> createExercise(Exercise exercise) {
+  public static Either<Sql2oException, Option<Exercise>> createExercise(Exercise exercise) {
     String sql = "INSERT INTO exercise (description, type, creator, created_at) " +
                  "values (:description, :type, :creator, :createdAt)";
 
@@ -68,9 +70,9 @@ public class ExerciseService {
           .getKey(int.class);
 
     } catch (Sql2oException err) {
-      return Optional.empty();
+      return Either.left(err);
     }
-    
+
     return getExerciseById(insertedId);
   }
 }
