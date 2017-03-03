@@ -24,7 +24,7 @@ public class ExerciseService {
     }
   }
 
-  public static List<Exercise> getExercises() {
+  public static Either<Sql2oException, List<Exercise>> getExercises() {
     String sql = "SELECT * FROM exercise";
 
     try(Connection con = DatabaseService.getConnection()) {
@@ -32,7 +32,9 @@ public class ExerciseService {
         .createQuery(sql)
         .addColumnMapping("created_at", "createdAt")
         .executeAndFetch(Exercise.class);
-      return exercises;
+      return Either.right(exercises);
+    } catch (Sql2oException err) {
+      return Either.left(err);
     }
   }
 
@@ -49,7 +51,6 @@ public class ExerciseService {
       if(exercises.size() == 0) {
         return Either.right(Option.none());
       }
-
       return Either.right(Option.some(exercises.get(0)));
     } catch (Sql2oException err) {
       return Either.left(err);
