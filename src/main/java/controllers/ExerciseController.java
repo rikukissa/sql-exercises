@@ -2,10 +2,10 @@ package controllers;
 
 import static spark.Spark.*;
 
-import services.ExerciseService;
-import services.ExerciseService.Exercise;
-import controllers.utils.Response;
 import controllers.utils.Request;
+import controllers.utils.Response;
+
+import static services.ExerciseService.*;
 
 public class ExerciseController {
 
@@ -16,17 +16,21 @@ public class ExerciseController {
        * Get all exercises
        */
 
-      get("", (req, res) -> Response.ok(res, ExerciseService.getExercises()));
+      get("", (req, res) -> Response.ok(res, getExercises()));
 
       /*
        * Create new exercise
        */
 
       post("",  (req, res) -> {
-        Exercise exercise = Request.getBodyAs(req.body(), ExerciseService.Exercise.class);
-        Exercise createdExercise = ExerciseService.createExercise(exercise);
+        Exercise exercise = Request.getBodyAs(req.body(), Exercise.class);
+        Exercise createdExercise = createExercise(exercise);
         return Response.created(res, createdExercise);
       });
+
+      exception(ExerciseNotCreated.class, (exception, request, response) ->
+        Response.internalServerError(response)
+      );
     });
 
   }

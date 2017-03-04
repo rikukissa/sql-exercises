@@ -28,7 +28,7 @@ public class SessionService {
     String sql = "SELECT * FROM session where id = :id";
 
     try(Connection con = DatabaseService.getConnection()) {
-      List<Session> exercises = con
+      List<Session> sessions = con
         .createQuery(sql)
         .addParameter("id", id)
         .addColumnMapping("started_at", "startedAt")
@@ -37,11 +37,11 @@ public class SessionService {
         .addColumnMapping("max_tries", "maxTries")
         .executeAndFetch(Session.class);
 
-      if(exercises.size() == 0) {
+      if(sessions.size() == 0) {
         throw new SessionNotFound();
       }
 
-      return exercises.get(0);
+      return sessions.get(0);
     }
   }
 

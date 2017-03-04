@@ -1,15 +1,13 @@
 package services;
 
-import fj.Try;
-import fj.data.Either;
-import fj.data.Option;
-import fj.function.Try0;
 import org.sql2o.Connection;
 
 import java.util.Date;
 import java.util.List;
 
 public class ExerciseService {
+  public static class ExerciseNotFound extends Exception {}
+  public static class ExerciseNotCreated extends Exception {}
   public static class Exercise {
     public int id;
     public String description;
@@ -33,11 +31,12 @@ public class ExerciseService {
               .createQuery(sql)
               .addColumnMapping("created_at", "createdAt")
               .executeAndFetch(Exercise.class);
+
       return exercises;
     }
   }
 
-  public static Exercise getExerciseById(int id) {
+  public static Exercise getExerciseById(int id) throws ExerciseNotFound {
     String sql = "SELECT * FROM exercise where id = :id";
 
     try(Connection con = DatabaseService.getConnection()) {
@@ -47,11 +46,15 @@ public class ExerciseService {
         .addColumnMapping("created_at", "createdAt")
         .executeAndFetch(Exercise.class);
 
+      if(exercises.size() == 0) {
+        throw new ExerciseNotFound();
+      }
+
       return exercises.get(0);
     }
   }
 
-  public static Exercise createExercise(Exercise exercise) {
+  public static Exercise createExercise(Exercise exercise) throws ExerciseNotCreated {
     String sql = "INSERT INTO exercise (description, type, creator, created_at) " +
                  "values (:description, :type, :creator, :createdAt)";
 
@@ -61,8 +64,11 @@ public class ExerciseService {
         .bind(exercise)
         .executeUpdate()
         .getKey(int.class);
-
-      return ExerciseService.getExerciseById(id);
+      try {
+        return ExerciseService.getExerciseById(id);
+      } catch (ExerciseNotFound err) {
+        throw new ExerciseNotCreated();
+      }
     }
   }
 }
