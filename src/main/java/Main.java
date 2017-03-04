@@ -10,8 +10,6 @@ public class Main {
 
     ExerciseController.init();
 
-    after((request, response) -> {
-      response.type("application/json");
-    });
+    after((request, response) -> response.type("application/json"));
   }
 }

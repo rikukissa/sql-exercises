@@ -19,8 +19,8 @@ public class ExerciseController {
        */
 
       get("", (req, res) ->
-        Response.fromEither(ExerciseService.getExercises())
-      , Response::toJson);
+        Response.fromEither(res, ExerciseService.getExercises())
+      );
 
       /*
        * Create new exercise
@@ -31,7 +31,7 @@ public class ExerciseController {
         // Parse Exercise model instance from request body
         Option<ExerciseService.Exercise> exerciseOpt = Request.getBodyAs(req.body(), ExerciseService.Exercise.class);
 
-        Either<Response.ResponseError, ExerciseService.Exercise> createdExercise =
+        Either<Response.Reply, Response.Reply> createdExercise =
           // "Invalid request" response if received body cannot be parsed
           exerciseOpt.toEither(Response.invalidRequest())
           // Try saving exercise to database
@@ -39,11 +39,12 @@ public class ExerciseController {
           // Send "Internal server error" if saving fails
           .left().map(Response::internalServerError)
           // Send "Not found" if exercise isn't found after saving
-          .right().bind(exerOpt -> exerOpt.toEither(Response.internalServerError())));
+          .right().bind(exerOpt -> exerOpt.toEither(Response.internalServerError())))
+          .right().map(Response::created);
 
-        return Response.fromHandledEither(createdExercise);
+        return Response.fromHandledEither(res, createdExercise);
 
-      }, Response::toJson);
+      });
     });
 
   }
