@@ -3,10 +3,8 @@ package controllers.utils;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fj.data.Either;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class Response  {
 
@@ -17,71 +15,49 @@ public class Response  {
 
     return gson.toJson(src);
   }
-  static public class Reply {
-    private String message;
-    private int httpStatus;
-
-    public Reply(Object message, int httpStatus) {
-      this.message = toJson(message);
-      this.httpStatus = httpStatus;
-    }
-
-    public Reply(String message, int httpStatus) {
-      Map<String, String> response = new HashMap<>();
-      response.put("message", message);
-      this.message = toJson(response);
-      this.httpStatus = httpStatus;
-    }
-
-    public Reply(Exception e, int httpStatus) {
-      this(e.getMessage(), httpStatus);
-    }
-
-    public String getMessage() {
-      return this.message;
-    }
-    public int getHttpStatus() {
-      return this.httpStatus;
-    }
+  public static HashMap error(String err) {
+    HashMap error = new HashMap<String, String>();
+    error.put("error", err);
+    return error;
   }
 
-  public static Reply internalServerError(Exception err) {
-    return new Reply(err, 500);
-  }
-  public static Reply internalServerError() {
-    return new Reply("Internal server error", 500);
-  }
-  public static Reply invalidRequest() {
-    return new Reply("Invalid request", 400);
-  }
-  public static Reply notFound() {
-    return new Reply("Not found", 404);
+  public static String internalServerError(spark.Response res, Exception err) {
+    String body = toJson(error(err.getMessage()));
+    res.status(500);
+    res.body(body);
+    return body;
   }
 
-  public static Reply ok(Object result) {
-    return new Reply(result, 200);
+  public static String internalServerError(spark.Response res) {
+    String body = toJson(error("Internal server error"));
+    res.status(500);
+    res.body(body);
+    return body;
   }
-  public static Reply created(Object result) {
-    return new Reply(result, 201);
+  public static String badRequest(spark.Response res) {
+    String body = toJson(error("Bad request"));
+    res.status(400);
+    res.body(body);
+    return body;
+  }
+  public static String notFound(spark.Response res) {
+    String body = toJson(error("Not found"));
+    res.status(404);
+    res.body(body);
+    return body;
   }
 
-  public static <E extends Exception, T extends Object> Object fromEither(spark.Response response, Either<E, T> either) {
-    return fromHandledEither(
-      response,
-      either
-        .left().map(Response::internalServerError)
-        .right().map(Response::ok)
-    );
+  public static <T extends Object> String ok(spark.Response res, T result) {
+    String body = toJson(result);
+    res.status(200);
+    res.body(body);
+    return body;
   }
 
-  public static Object fromHandledEither(spark.Response response, Either<Reply, Reply> either) {
-    either.left().forEach(reply -> response.status(reply.getHttpStatus()));
-    either.right().forEach(reply -> response.status(reply.getHttpStatus()));
-
-    if(either.isLeft()) {
-      return either.left().value().getMessage();
-    } else {
-      return either.right().value().getMessage();
-    }
+  public static <T extends Object> String created(spark.Response res, T result) {
+    String body = toJson(result);
+    res.status(201);
+    res.body(body);
+    return body;
   }
 }

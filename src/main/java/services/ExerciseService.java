@@ -25,62 +25,45 @@ public class ExerciseService {
     }
   }
 
-  public static Either<Exception, List<Exercise>> getExercises() {
+  public static List<Exercise> getExercises() {
     String sql = "SELECT * FROM exercise";
 
-    Try0<List<Exercise>, Exception> t = () -> {
-      try(Connection con = DatabaseService.getConnection()) {
-        List<Exercise> exercises = con
-          .createQuery(sql)
-          .addColumnMapping("created_at", "createdAt")
-          .executeAndFetch(Exercise.class);
-        return exercises;
-      }
-    };
-
-    return Try.f(t).f().toEither();
+    try(Connection con = DatabaseService.getConnection()) {
+      List<Exercise> exercises = con
+              .createQuery(sql)
+              .addColumnMapping("created_at", "createdAt")
+              .executeAndFetch(Exercise.class);
+      return exercises;
+    }
   }
 
-  public static Either<Exception, Option<Exercise>> getExerciseById(int id) {
+  public static Exercise getExerciseById(int id) {
     String sql = "SELECT * FROM exercise where id = :id";
 
-    Try0<Option<Exercise>, Exception> t = () -> {
+    try(Connection con = DatabaseService.getConnection()) {
+      List<Exercise> exercises = con
+        .createQuery(sql)
+        .addParameter("id", id)
+        .addColumnMapping("created_at", "createdAt")
+        .executeAndFetch(Exercise.class);
 
-      try(Connection con = DatabaseService.getConnection()) {
-        List<Exercise> exercises = con
-          .createQuery(sql)
-          .addParameter("id", id)
-          .addColumnMapping("created_at", "createdAt")
-          .executeAndFetch(Exercise.class);
-
-        if(exercises.size() == 0) {
-          return Option.none();
-        }
-
-        return Option.some(exercises.get(0));
-      }
-
-    };
-
-    return Try.f(t).f().toEither();
+      return exercises.get(0);
+    }
   }
 
-  public static Either<Exception,  Option<Exercise>> createExercise(Exercise exercise) {
+  public static Exercise createExercise(Exercise exercise) {
     String sql = "INSERT INTO exercise (description, type, creator, created_at) " +
                  "values (:description, :type, :creator, :createdAt)";
 
-    Try0<Integer, Exception> t = () -> {
-      try(Connection con = DatabaseService.getConnection()) {
-        return con
-          .createQuery(sql, true)
-          .bind(exercise)
-          .executeUpdate()
-          .getKey(int.class);
-      }
-    };
+    try(Connection con = DatabaseService.getConnection()) {
+      int id = con
+        .createQuery(sql, true)
+        .bind(exercise)
+        .executeUpdate()
+        .getKey(int.class);
 
-    return Try.f(t).f().toEither()
-      .right().bind(ExerciseService::getExerciseById);
+      return ExerciseService.getExerciseById(id);
+    }
   }
 }
 
