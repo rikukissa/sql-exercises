@@ -4,6 +4,7 @@ import org.sql2o.Connection;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExerciseService {
   public static class ExerciseNotFound extends Exception {}
@@ -23,14 +24,29 @@ public class ExerciseService {
     }
   }
 
+  public static List<Exercise> getExercises(List<Integer> ids) {
+    String sql = "SELECT * FROM exercise WHERE id IN (:ids)";
+
+    try(Connection con = DatabaseService.getConnection()) {
+
+      List<Exercise> exercises = con
+        .createQuery(sql)
+        .addParameter("ids", ids)
+        .addColumnMapping("created_at", "createdAt")
+        .executeAndFetch(Exercise.class);
+
+      return exercises;
+    }
+  }
+
   public static List<Exercise> getExercises() {
     String sql = "SELECT * FROM exercise";
 
     try(Connection con = DatabaseService.getConnection()) {
       List<Exercise> exercises = con
-              .createQuery(sql)
-              .addColumnMapping("created_at", "createdAt")
-              .executeAndFetch(Exercise.class);
+        .createQuery(sql)
+        .addColumnMapping("created_at", "createdAt")
+        .executeAndFetch(Exercise.class);
 
       return exercises;
     }

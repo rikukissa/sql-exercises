@@ -27,6 +27,11 @@ public class ExerciseListController {
         return Response.ok(res, getExerciseListById(id));
       });
 
+      get("/:id/exercises", (req, res) -> {
+        int id = Integer.parseInt(req.params(":id"));
+        return Response.ok(res, getExerciseListExercisesById(id));
+      });
+
       exception(NumberFormatException.class, (exception, request, response) ->
         Response.badRequest(response)
       );
