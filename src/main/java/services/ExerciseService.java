@@ -1,9 +1,10 @@
 package services;
 
+import fj.Try;
 import fj.data.Either;
 import fj.data.Option;
+import fj.function.Try0;
 import org.sql2o.Connection;
-import org.sql2o.Sql2oException;
 
 import java.util.Date;
 import java.util.List;
@@ -24,57 +25,62 @@ public class ExerciseService {
     }
   }
 
-  public static Either<Sql2oException, List<Exercise>> getExercises() {
+  public static Either<Exception, List<Exercise>> getExercises() {
     String sql = "SELECT * FROM exercise";
 
-    try(Connection con = DatabaseService.getConnection()) {
-      List<Exercise> exercises = con
-        .createQuery(sql)
-        .addColumnMapping("created_at", "createdAt")
-        .executeAndFetch(Exercise.class);
-      return Either.right(exercises);
-    } catch (Sql2oException err) {
-      return Either.left(err);
-    }
+    Try0<List<Exercise>, Exception> t = () -> {
+      try(Connection con = DatabaseService.getConnection()) {
+        List<Exercise> exercises = con
+          .createQuery(sql)
+          .addColumnMapping("created_at", "createdAt")
+          .executeAndFetch(Exercise.class);
+        return exercises;
+      }
+    };
+
+    return Try.f(t).f().toEither();
   }
 
-  public static Either<Sql2oException, Option<Exercise>> getExerciseById(int id) {
+  public static Either<Exception, Option<Exercise>> getExerciseById(int id) {
     String sql = "SELECT * FROM exercise where id = :id";
 
-    try(Connection con = DatabaseService.getConnection()) {
-      List<Exercise> exercises = con
-        .createQuery(sql)
-        .addParameter("id", id)
-        .addColumnMapping("created_at", "createdAt")
-        .executeAndFetch(Exercise.class);
+    Try0<Option<Exercise>, Exception> t = () -> {
 
-      if(exercises.size() == 0) {
-        return Either.right(Option.none());
+      try(Connection con = DatabaseService.getConnection()) {
+        List<Exercise> exercises = con
+          .createQuery(sql)
+          .addParameter("id", id)
+          .addColumnMapping("created_at", "createdAt")
+          .executeAndFetch(Exercise.class);
+
+        if(exercises.size() == 0) {
+          return Option.none();
+        }
+
+        return Option.some(exercises.get(0));
       }
-      return Either.right(Option.some(exercises.get(0)));
-    } catch (Sql2oException err) {
-      return Either.left(err);
-    }
+
+    };
+
+    return Try.f(t).f().toEither();
   }
 
-  public static Either<Sql2oException, Option<Exercise>> createExercise(Exercise exercise) {
+  public static Either<Exception,  Option<Exercise>> createExercise(Exercise exercise) {
     String sql = "INSERT INTO exercise (description, type, creator, created_at) " +
                  "values (:description, :type, :creator, :createdAt)";
 
-    int insertedId;
-
-    try(Connection con = DatabaseService.getConnection()) {
-        insertedId = con
+    Try0<Integer, Exception> t = () -> {
+      try(Connection con = DatabaseService.getConnection()) {
+        return con
           .createQuery(sql, true)
           .bind(exercise)
           .executeUpdate()
           .getKey(int.class);
+      }
+    };
 
-    } catch (Sql2oException err) {
-      return Either.left(err);
-    }
-
-    return getExerciseById(insertedId);
+    return Try.f(t).f().toEither()
+      .right().bind(ExerciseService::getExerciseById);
   }
 }
 
