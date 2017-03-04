@@ -1,3 +1,5 @@
+package controllers.utils;
+
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -5,9 +7,6 @@ import fj.data.Either;
 
 import static spark.Spark.halt;
 
-/**
- * Created by rrou on 03/03/2017.
- */
 public class Response  {
 
   static public String toJson(Object src) {
@@ -41,23 +40,26 @@ public class Response  {
   }
 
   public static ResponseError internalServerError(Exception err) {
-    return new ResponseError(err.getMessage(), 500);
+    return new ResponseError(err, 500);
   }
+
+  public static ResponseError internalServerError() {
+    return new ResponseError("Internal server error", 500);
+  }
+
   public static ResponseError invalidRequest() {
     return new ResponseError("Invalid request", 400);
   }
+
   public static ResponseError notFound() {
     return new ResponseError("Not found", 404);
   }
-/*  public static <E extends Exception, T extends Object> Object fromEither(Either<E, T> either) {
-    if(either.isRight()) {
-      return either.right().value();
-    }
 
-    either.left().forEach(err -> halt(500, err.getMessage()));
-    return either.left().value();
-  }*/
-  public static <T extends Object> Object fromEither(Either<ResponseError, T> either) {
+  public static <E extends Exception, T extends Object> Object fromEither(Either<E, T> either) {
+    return fromHandledEither(either.left().map(Response::internalServerError));
+  }
+
+  public static <T extends Object> Object fromHandledEither(Either<ResponseError, T> either) {
     if(either.isRight()) {
       return either.right().value();
     }
