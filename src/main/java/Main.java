@@ -11,6 +11,7 @@ public class Main {
     get("/hello", (req, res) -> "Hello World");
 
     ExerciseController.init();
+    ExerciseListController.init();
     SessionController.init();
 
     after((request, response) -> response.type("application/json"));
