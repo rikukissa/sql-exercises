@@ -1,9 +1,11 @@
 package controllers;
 
+import static services.UserService.getUserByStudentNumber;
 import static spark.Spark.*;
 
 import controllers.utils.Request;
 import controllers.utils.Response;
+import services.UserService.*;
 
 import static services.SessionService.*;
 
@@ -38,6 +40,12 @@ public class SessionController {
 
       post("",  (req, res) -> {
         Session session = Request.getBodyAs(req.body(), Session.class);
+
+        String studentNumber = Request.getAuthIdentifier(req);
+        User user = getUserByStudentNumber(studentNumber);
+
+        session.user = user.id;
+
         Session createdSession = createSession(session);
         return Response.created(res, createdSession);
       });
