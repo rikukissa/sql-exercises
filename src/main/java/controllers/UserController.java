@@ -29,7 +29,13 @@ public class UserController {
 
     post("/login", (req, res) -> {
       LoginCredentials credentials = Request.getBodyAs(req.body(), LoginCredentials.class);
-      User user = getUserByStudentNumber(credentials.studentNumber);
+
+      User user;
+      try {
+        user = getUserByStudentNumber(credentials.studentNumber);
+      } catch (UserNotFound err) {
+        return Response.unauthorized(res);
+      }
 
       Map<String, Object> headerClaims = new HashMap<>();
       headerClaims.put("studentNumber", user.studentNumber);
