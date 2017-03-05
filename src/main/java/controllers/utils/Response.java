@@ -47,6 +47,13 @@ public class Response  {
     return body;
   }
 
+  public static String unauthorized(spark.Response res) {
+    String body = toJson(error("Unauthorized"));
+    res.status(401);
+    res.body(body);
+    return body;
+  }
+
   public static <T extends Object> String ok(spark.Response res, T result) {
     String body = toJson(result);
     res.status(200);

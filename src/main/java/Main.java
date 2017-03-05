@@ -13,6 +13,7 @@ public class Main {
     ExerciseController.init();
     ExerciseListController.init();
     SessionController.init();
+    UserController.init();
 
     after((request, response) -> response.type("application/json"));
 

@@ -12,6 +12,9 @@ public class SessionController {
   public static void init() {
     path("/sessions", () -> {
 
+      before("/*", Request::requiresAuthentication);
+
+
       /*
       * Get all exercises
       */
