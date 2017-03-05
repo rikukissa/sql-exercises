@@ -16,7 +16,7 @@ public class ExerciseListController {
        * Get all exercise lists
        */
 
-      get("/", (req, res) -> Response.ok(res, getExerciseLists()));
+      get("", (req, res) -> Response.ok(res, getExerciseLists()));
 
       /*
        * Get exercise list by id
