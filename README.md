@@ -5,6 +5,8 @@
 1. Clone this repository
 2. Run `mvn clean install` to install dependencies
 3. Run `mvn exec:java -Dexec.mainClass="Main"` to start the app
+4. Start the client by going into frontend directory and running `npm install && npm start`
+
 
 ## API endspoints
 
