@@ -18,7 +18,7 @@ public class SessionController {
 
 
       /*
-      * Get all exercises
+      * Get session by id
       */
 
       get("/:id", (req, res) -> {

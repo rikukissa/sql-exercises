@@ -21,8 +21,8 @@ public class Response  {
     return error;
   }
 
-  public static String internalServerError(spark.Response res, Exception err) {
-    String body = toJson(error(err.getMessage()));
+  public static String internalServerError(Exception err, spark.Response res) {
+    String body = toJson(error("Internal server error: " + err.getMessage()));
     res.status(500);
     res.body(body);
     return body;
@@ -40,8 +40,23 @@ public class Response  {
     res.body(body);
     return body;
   }
+
+  public static String badRequest(Exception err, spark.Response res) {
+    String body = toJson(error("Bad request: " + err.getMessage()));
+    res.status(400);
+    res.body(body);
+    return body;
+  }
+
   public static String notFound(spark.Response res) {
     String body = toJson(error("Not found"));
+    res.status(404);
+    res.body(body);
+    return body;
+  }
+
+  public static String notFound(Exception err, spark.Response res) {
+    String body = toJson(error("Not found: " + err.getMessage()));
     res.status(404);
     res.body(body);
     return body;

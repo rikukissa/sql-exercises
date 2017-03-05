@@ -44,11 +44,12 @@ CREATE TABLE session (
   "user" int REFERENCES "user"(id) ON DELETE CASCADE,
   exercise_list int REFERENCES exercise_list(id) ON DELETE CASCADE,
   started_at timestamp NOT NULL default now(),
-  max_tries int,
+  max_tries int NOT NULL default 3,
   finished_at timestamp
 );
 
 CREATE TABLE session_try (
+  id SERIAL PRIMARY KEY NOT NULL,
   exercise int REFERENCES exercise(id) ON DELETE CASCADE,
   session int REFERENCES session(id) ON DELETE CASCADE,
   started_at timestamp NOT NULL default now(),

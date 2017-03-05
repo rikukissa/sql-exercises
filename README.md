@@ -2,10 +2,18 @@
 
 ## Installation
 
+**Prerequirements:**
+
+Install Java 8 JDK, [Maven](https://maven.apache.org/), [Node.js](https://nodejs.org/en/) and [Yarn](https://yarnpkg.com/en/docs/install).
+Make sure you are able to run `node`, `yarn` and `npm` commands from the command line.
+
+
+**Installation & running the app:**
+
 1. Clone this repository
 2. Run `mvn clean install` to install dependencies
 3. Run `mvn exec:java -Dexec.mainClass="Main"` to start the app
-4. Start the client by going into frontend directory and running `npm install && npm start`
+4. Start the client by going into frontend directory and running `yarn install && npm start`
 
 
 ## API endspoints

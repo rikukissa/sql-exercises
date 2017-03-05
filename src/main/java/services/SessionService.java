@@ -46,7 +46,7 @@ public class SessionService {
   }
 
   public static Session createSession(Session session) throws SessionNotCreated {
-    String sql = "INSERT INTO session (user, exercise_list, started_at) " +
+    String sql = "INSERT INTO session (\"user\", exercise_list, started_at) " +
             "values (:user, :exerciseList, :startedAt)";
 
     try(Connection con = DatabaseService.getConnection()) {

@@ -4,22 +4,41 @@ import org.sql2o.Connection;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExerciseService {
-  public static class ExerciseNotFound extends Exception {}
-  public static class ExerciseNotCreated extends Exception {}
+  public static class ExerciseNotFound extends Exception {
+    public ExerciseNotFound() {
+      super("Exercise not found");
+    }
+  }
+  public static class ExerciseNotCreated extends Exception {
+    public ExerciseNotCreated() {
+      super("Exercise was not created because of an internal error");
+    }
+  }
+
+  private static class ExampleAnswer {
+    public int exercise;
+    public String answer;
+  }
   public static class Exercise {
     public int id;
     public String description;
     public String type;
     public Integer creator;
     public Date createdAt;
+    public List<String> exampleAnswers;
 
     public Exercise(String description, String type, Integer creator, Date createdAt) {
       this.description = description;
       this.type = type;
       this.creator = creator;
       this.createdAt = createdAt;
+    }
+
+    public void setExampleAnswers(List<String> answers) {
+      this.exampleAnswers = answers;
     }
   }
 
@@ -65,7 +84,19 @@ public class ExerciseService {
         throw new ExerciseNotFound();
       }
 
-      return exercises.get(0);
+      Exercise exercise = exercises.get(0);
+
+      List<String> exampleAnswers = con
+        .createQuery("SELECT * FROM example_answer where exercise = :exercise")
+        .addParameter("exercise", exercise.id)
+        .executeAndFetch(ExampleAnswer.class)
+        .stream()
+        .map(ea -> ea.answer)
+        .collect(Collectors.toList());
+
+      exercise.setExampleAnswers(exampleAnswers);
+
+      return exercise;
     }
   }
 
