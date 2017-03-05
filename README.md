@@ -4,9 +4,19 @@
 
 **Prerequirements:**
 
-Install Java 8 JDK, [Maven](https://maven.apache.org/), [Node.js](https://nodejs.org/en/) and [Yarn](https://yarnpkg.com/en/docs/install).
+Install Java 8 JDK, PostgreSQL, [Maven](https://maven.apache.org/), [Node.js](https://nodejs.org/en/) and [Yarn](https://yarnpkg.com/en/docs/install).
 Make sure you are able to run `node`, `yarn` and `npm` commands from the command line.
 
+
+**Database**
+
+```
+CREATE USER exercises WITH PASSWORD "super_secret_database_password";
+CREATE DATABASE exercises;
+GRANT ALL PRIVILEGES ON DATABASE "exercises" to exercises;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO exercises;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES in schema public to exercises;
+```
 
 **Installation & running the app:**
 

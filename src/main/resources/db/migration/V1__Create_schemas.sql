@@ -1,11 +1,3 @@
-CREATE USER exercises WITH PASSWORD "super_secret_database_password";
-CREATE DATABASE exercises;
-GRANT ALL PRIVILEGES ON DATABASE "exercises" to exercises;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO exercises;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES in schema public to exercises;
-
-\connect exercises
-
 CREATE TABLE "user" (
   id SERIAL PRIMARY KEY NOT NULL,
   name TEXT NOT NULL,
@@ -58,19 +50,21 @@ CREATE TABLE session_try (
   correct BOOLEAN NOT NULL
 );
 
-CREATE OR REPLACE FUNCTION increase_exercise_amount() RETURNS trigger AS $$
-BEGIN
-  UPDATE exercise_list SET exercise_amount = exercise_amount + 1 WHERE id = NEW.exercise_list;
-  RETURN NEW;
-END;
-$$ LANGUAGE 'plpgsql';
+CREATE FUNCTION increase_exercise_amount() RETURNS TRIGGER
+AS $$
+   BEGIN
+    UPDATE exercise_list SET exercise_amount = exercise_amount + 1 WHERE id = NEW.exercise_list;
+    RETURN NEW;
+   END;
+$$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION decrease_exercise_amount() RETURNS trigger AS $$
-BEGIN
-  UPDATE exercise_list SET exercise_amount = exercise_amount - 1 WHERE id = OLD.exercise_list;
-  RETURN NEW;
-END;
-$$ LANGUAGE 'plpgsql';
+CREATE FUNCTION decrease_exercise_amount() RETURNS TRIGGER
+AS $$
+    BEGIN
+     UPDATE exercise_list SET exercise_amount = exercise_amount - 1 WHERE id = OLD.exercise_list;
+     RETURN NEW;
+   END;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER increase_exercise_amount_trigger
   AFTER INSERT
@@ -83,10 +77,3 @@ CREATE TRIGGER decrease_exercise_amount_trigger
   ON exercise_list_exercise
   FOR EACH ROW
   EXECUTE PROCEDURE decrease_exercise_amount();
-
-insert into "user" (name, student_number, field) values ('Riku', '96412', 'TKT');
-insert into exercise (description, type, creator) values ('Testiharjoitus', 'TODO', 1);
-insert into exercise_list (description) values ('Joulun lämpimimmät SQL-harjoitukset');
-insert into exercise_list_exercise (exercise, exercise_list) values (1, 1);
-
-select * from exercise_list;
