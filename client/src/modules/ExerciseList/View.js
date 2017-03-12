@@ -32,11 +32,11 @@ export default class ExerciseListView extends Component {
     incorrect: false,
   }
   componentDidMount = () => {
-    this.getExerciseList(this.props.params.id);
+    this.getExerciseList(this.props.match.params.id);
   }
   componentWillReceiveProps(nextProps) {
-    if (this.props.params.id !== nextProps.params.id) {
-      this.getExerciseList(nextProps.params.id);
+    if (this.props.match.params.id !== nextProps.match.params.id) {
+      this.getExerciseList(nextProps.match.params.id);
     }
   }
   onLogin = (token) => {

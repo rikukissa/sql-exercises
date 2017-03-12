@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router';
 import styled from 'styled-components';
+
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+} from 'react-router-dom';
+
 import { getExerciseLists } from './service';
+import HomeView from './modules/Home/View';
+import ExerciseListView from './modules/ExerciseList/View';
+
 
 const Container = styled.div`
   height: 100%;
@@ -26,6 +35,7 @@ const ExerciseList = styled(Link)`
   border-bottom: 1px solid #b7b7b7;
 `;
 
+
 export default class App extends Component {
   state = {
     exerciseLists: [],
@@ -37,23 +47,26 @@ export default class App extends Component {
   }
   render() {
     return (
-      <Container>
-        <Sidebar>
-          <ul>
-            {
+      <Router>
+        <Container>
+          <Sidebar>
+            <ul>
+              {
               this.state.exerciseLists.map((exerciseList) =>
                 <li key={exerciseList.id}>
                   <ExerciseList to={`/exercise-lists/${exerciseList.id}`}>{exerciseList.description}</ExerciseList>
                 </li>,
               )
             }
-          </ul>
+            </ul>
 
-        </Sidebar>
-        <Content>
-          {this.props.children}
-        </Content>
-      </Container>
+          </Sidebar>
+          <Content>
+            <Route exact path="/" component={HomeView} />
+            <Route path="/exercise-lists/:id" component={ExerciseListView} />
+          </Content>
+        </Container>
+      </Router>
     );
   }
 }
