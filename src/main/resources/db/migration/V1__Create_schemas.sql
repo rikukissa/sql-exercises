@@ -9,7 +9,7 @@ CREATE TABLE "user" (
 CREATE TABLE exercise_list (
   id SERIAL PRIMARY KEY NOT NULL,
   description TEXT NOT NULL,
-  exercise_amount int NOT NULL DEFAULT 0, -- tää pitää johtaa?
+  exercise_amount int NOT NULL DEFAULT 0,
   created_at timestamp NOT NULL default now()
 );
 
