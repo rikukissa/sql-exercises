@@ -33,6 +33,9 @@ public class SessionTryService {
       super("Too many exercise answer attempts");
     }
   }
+  public static class SessionTrySyntaxError extends Exception {
+    public SessionTrySyntaxError() { super("Syntax error"); }
+  }
 
   public static class SessionTry {
     public int id;
@@ -91,7 +94,17 @@ public class SessionTryService {
   }
 
   public static SessionTry answerExercise(SessionTry sessionTry, User user)
-          throws SessionTryNotCreated, SessionNotFound, SessionTriesExceeded, ExerciseNotFound {
+          throws SessionTryNotCreated, SessionNotFound, SessionTriesExceeded, ExerciseNotFound,
+                  SessionTrySyntaxError {
+
+    if(sessionTry.answer.charAt((sessionTry.answer.length() -1)) != ';') {
+      throw new SessionTrySyntaxError();
+    }
+
+    if(!syntaxChecker(sessionTry.answer)) {
+      throw new SessionTrySyntaxError();
+    }
+
 
     Session session = getSessionById(sessionTry.session);
     Exercise exercise = getExerciseById(sessionTry.exercise);
@@ -138,6 +151,24 @@ public class SessionTryService {
     } catch (SessionTryNotFound err) {
       throw new SessionTryNotCreated();
     }
+  }
+  private static boolean syntaxChecker(String answer) {
+    final char PAR1 = '(';
+    final char PAR2 = ')';
+    int parNum1 = 0;
+    int parNum2 = 0;
+    for(int i = 0; i < answer.length() -1; ++i)
+    {
+      if(answer.charAt(i) == PAR1)
+      {
+        parNum1++;
+      }
+      if(answer.charAt(i) == PAR2)
+      {
+        parNum2++;
+      }
+    }
+    return parNum1 == parNum2;
   }
 }
 

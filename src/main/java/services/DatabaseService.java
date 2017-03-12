@@ -20,7 +20,6 @@ public class DatabaseService {
       System.out.println("Database driver not found");
       return null;
     }
-
     Sql2o sql2o = new Sql2o(PROTOCOL + "//" + HOST + ":" + PORT + "/" + DATABASE, USER, PASSWORD);
     return sql2o.open();
   }
