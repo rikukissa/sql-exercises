@@ -10,7 +10,7 @@ import static services.UserService.getUserByStudentNumber;
 
 import static spark.Spark.*;
 
-public class SessionTryController {
+public class  SessionTryController {
 
   public static void init() {
     path("/session-tries", () -> {
@@ -43,6 +43,11 @@ public class SessionTryController {
       exception(SessionTriesExceeded.class, (exception, request, response) ->
         Response.badRequest(exception, response)
       );
+
+      exception(SessionTrySyntaxError.class, (exception, request, response) ->
+              Response.badRequest(exception, response)
+      );
+
     });
   }
 }
