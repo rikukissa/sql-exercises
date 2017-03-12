@@ -9,8 +9,15 @@ const StartButton = styled(Button)`
   width: 400px;
 `;
 
-const SubmitButton = styled(Button)`
+const SubmitButton = styled(Button)``;
 
+const ExerciseTitle = styled.h2`
+  margin-bottom: 0;
+`;
+
+const CurrentTry = styled.span`
+  font-size: 14px;
+  color: #6d6d6d;
 `;
 
 const storedToken = window.localStorage.getItem('token');
@@ -26,6 +33,7 @@ export default class ExerciseListView extends Component {
     loginFailed: false,
 
     // Exercise related stuff
+    currentTry: 1,
     session: null,
     currentExercise: null,
     currentExerciseStartedAt: null,
@@ -80,6 +88,7 @@ export default class ExerciseListView extends Component {
     }
 
     this.setState({
+      currentTry: 1,
       currentExercise: exercises[currentExerciseIndex + 1],
       currentExerciseStartedAt: new Date(),
     });
@@ -101,20 +110,33 @@ export default class ExerciseListView extends Component {
       .catch(() => this.setState({ loginFailed: true }));
   }
   submitAnswer = (code) => {
-    this.setState({ incorrect: false });
+    const {
+      currentTry,
+      currentExercise,
+      session,
+      currentExerciseStartedAt,
+      authorizationToken,
+    } = this.state;
 
     submitAnswer(
       code,
-      this.state.currentExercise,
-      this.state.session,
-      this.state.currentExerciseStartedAt,
-      this.state.authorizationToken,
+      currentExercise,
+      session,
+      currentExerciseStartedAt,
+      authorizationToken,
     ).then(({ correct }) => {
       if (correct) {
+        this.toNextExercise();
+      } else if (currentTry === session.maxTries) {
         this.toNextExercise();
       } else {
         this.setState({ incorrect: true });
       }
+    });
+
+    this.setState({
+      incorrect: false,
+      currentTry: currentTry + 1,
     });
   }
   render() {
@@ -122,8 +144,17 @@ export default class ExerciseListView extends Component {
       const { exercises } = this.state.exerciseList;
       return (
         <div>
-          <h2>Tehtävä {exercises.indexOf(this.state.currentExercise) + 1} / {exercises.length}</h2>
-          <Exercise incorrect={this.state.incorrect} onSubmit={this.submitAnswer} exercise={this.state.currentExercise} />
+          <ExerciseTitle>
+            Tehtävä {exercises.indexOf(this.state.currentExercise) + 1} / {exercises.length}
+          </ExerciseTitle>
+          <CurrentTry>
+            Yrityksiä jäljellä: <strong>{this.state.session.maxTries - this.state.currentTry + 1}</strong>
+          </CurrentTry>
+          <Exercise
+            incorrect={this.state.incorrect}
+            exercise={this.state.currentExercise}
+            onSubmit={this.submitAnswer}
+          />
         </div>
       );
     }
@@ -145,7 +176,7 @@ export default class ExerciseListView extends Component {
           {this.state.exerciseList && this.state.exerciseList.description}
         </p>
 
-        <StartButton onClick={this.start}>Aloita</StartButton>
+        <StartButton onClick={this.start}>Aloita harjoitukset</StartButton>
       </div>
     );
   }

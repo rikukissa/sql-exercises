@@ -21,18 +21,19 @@ const Container = styled.div`
 const Content = styled.div`
   flex-grow: 1;
   padding: 1em;
+  overflow: auto;
 `;
 
 const Sidebar = styled.div`
   width: 200px;
-  border-right: 1px solid #b7b7b7;
+  border-right: 1px solid #e4e4e4;
 `;
 
 const ExerciseList = styled(Link)`
   display: block;
   cursor: pointer;
   padding: 1em;
-  border-bottom: 1px solid #b7b7b7;
+  border-bottom: 1px solid #d6d6d6;
 `;
 
 
