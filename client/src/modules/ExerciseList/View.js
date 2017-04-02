@@ -132,6 +132,17 @@ export default class ExerciseListView extends Component {
       } else {
         this.setState({ incorrect: true });
       }
+    }).catch((err) => {
+      if (err.response.status !== 400) {
+        return;
+      }
+
+      if (currentTry === session.maxTries) {
+        this.toNextExercise();
+        return;
+      }
+
+      this.setState({ incorrect: true });
     });
 
     this.setState({
