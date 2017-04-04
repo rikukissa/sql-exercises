@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { camelCase, snakeCase } from 'change-case-object';
 
+const ROOT = process.env.NODE_ENV === 'production' ?
+  'https://shrouded-bayou-72543.herokuapp.com' :
+  'http://localhost:4567';
+
 const api = axios.create({
   transformRequest: [(data) => JSON.stringify(snakeCase(data))],
   transformResponse: [(data) => {
@@ -11,20 +15,21 @@ const api = axios.create({
   }],
 });
 
+
 export function getExerciseLists() {
-  return api.get('http://localhost:4567/exercise-lists').then(({ data }) => data);
+  return api.get(`${ROOT}/exercise-lists`).then(({ data }) => data);
 }
 
 export function getExerciseList(id) {
-  return api.get(`http://localhost:4567/exercise-lists/${id}`).then(({ data }) => data);
+  return api.get(`${ROOT}/exercise-lists/${id}`).then(({ data }) => data);
 }
 
 export function login(studentNumber) {
-  return api.post('http://localhost:4567/login', { studentNumber }).then(({ data }) => data);
+  return api.post(`${ROOT}/login`, { studentNumber }).then(({ data }) => data);
 }
 
 export function createSession(exerciseList, token) {
-  return api.post('http://localhost:4567/sessions', {
+  return api.post(`${ROOT}/sessions`, {
     exerciseList: exerciseList.id,
     startedAt: new Date().toISOString(),
   }, {
@@ -35,7 +40,7 @@ export function createSession(exerciseList, token) {
 }
 
 export function submitAnswer(code, exercise, session, startedAt, token) {
-  return api.post('http://localhost:4567/session-tries', {
+  return api.post(`${ROOT}/session-tries`, {
     exercise: exercise.id,
     session: session.id,
     startedAt: startedAt.toISOString(),

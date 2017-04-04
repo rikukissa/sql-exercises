@@ -11,7 +11,6 @@ import { getExerciseLists } from './service';
 import HomeView from './modules/Home/View';
 import ExerciseListView from './modules/ExerciseList/View';
 
-
 const Container = styled.div`
   height: 100%;
   width: 100%;
