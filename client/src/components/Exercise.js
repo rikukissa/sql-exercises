@@ -43,6 +43,10 @@ export default class Exercise extends Component {
         this.setState({ incorrect: false });
       }, 3000);
     }
+
+    if (nextProps.exercise.id !== this.props.exercise.id) {
+      this.setState({ code: '' });
+    }
   }
   updateCode = (code) => {
     this.setState({ code });
