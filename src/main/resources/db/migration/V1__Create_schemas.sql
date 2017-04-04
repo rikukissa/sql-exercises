@@ -50,6 +50,24 @@ CREATE TABLE session_try (
   correct BOOLEAN NOT NULL
 );
 
+CREATE TABLE opiskelijat (
+  nro int PRIMARY KEY NOT NULL,
+  nimi TEXT NOT NULL,
+  p_aine TEXT NOT NULL
+);
+
+CREATE TABLE kurssit (
+   id int PRIMARY KEY NOT NULL,
+   nimi TEXT NOT NULL,
+   opettaja TEXT NOT NULL
+);
+
+CREATE TABLE suoritukset (
+   k_id int REFERENCES kurssit(id),
+   op_nro int REFERENCES opiskelijat(nro),
+   arvosana int NOT NULL
+);
+
 CREATE FUNCTION increase_exercise_amount() RETURNS TRIGGER
 AS $$
    BEGIN
