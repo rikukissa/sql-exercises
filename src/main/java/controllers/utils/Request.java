@@ -25,6 +25,10 @@ public class Request  {
   }
 
   public static void requiresAuthentication(spark.Request request, spark.Response response) {
+    if(request.requestMethod() == "OPTIONS") {
+      return;
+    }
+
     try {
       String token = request.headers("Authorization");
       JWT.decode(token);
