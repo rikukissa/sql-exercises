@@ -15,9 +15,16 @@ public class Response  {
 
     return gson.toJson(src);
   }
+
   public static HashMap error(String err) {
     HashMap error = new HashMap<String, String>();
     error.put("error", err);
+    return error;
+  }
+
+  public static HashMap errorWithType(String err, String type) {
+    HashMap error = error(err);
+    error.put("type", type);
     return error;
   }
 
@@ -43,6 +50,27 @@ public class Response  {
 
   public static String badRequest(Exception err, spark.Response res) {
     String body = toJson(error("Bad request: " + err.getMessage()));
+    res.status(400);
+    res.body(body);
+    return body;
+  }
+
+  public static String badRequest(String message, spark.Response res) {
+    String body = toJson(error(message));
+    res.status(400);
+    res.body(body);
+    return body;
+  }
+
+  public static String badRequestWithType(Exception err, spark.Response res, String type) {
+    String body = toJson(errorWithType(err.getMessage(), type));
+    res.status(400);
+    res.body(body);
+    return body;
+  }
+
+  public static String badRequestWithType(String message, spark.Response res, String type) {
+    String body = toJson(errorWithType(message, type));
     res.status(400);
     res.body(body);
     return body;

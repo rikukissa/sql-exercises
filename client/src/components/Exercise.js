@@ -11,8 +11,6 @@ const SubmitButton = styled(Button)`
   display: block;
   width: 100%;
   margin-top: 1em;
-  transition: background-color 300ms;
-  ${({ incorrect }) => incorrect ? 'background-color: #ea5250;' : ''};
   ${({ disabled }) => disabled ?
    `opacity: 0.5;
     cursor: not-allowed;
@@ -20,9 +18,11 @@ const SubmitButton = styled(Button)`
 `;
 
 const Description = styled.p`
+  transition: background-color 300ms;
+  background: #3bbf9d;
+  ${({ error }) => error ? 'background-color: #ea5250;' : ''};
   color: #ffffff;
   margin-bottom: 0;
-  background: #3bbf9d;
   padding: 1em;
 `;
 
@@ -31,19 +31,25 @@ const Task = styled.strong`
   font-weight: 700;
 `;
 
+const MESSAGES = {
+  sql: (message) => (
+    <div>
+      <strong>
+        Tietokanta palautti virheen:
+      </strong>
+      <br />
+      {message}
+    </div>
+  ),
+  syntax: () => 'Syntaksivirhe',
+  'tries exceeded': () => 'Yritysten maksimimäärä ylitetty',
+};
+
 export default class Exercise extends Component {
   state = {
     code: '',
-    incorrect: false,
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.incorrect) {
-      this.setState({ incorrect: true });
-      setTimeout(() => {
-        this.setState({ incorrect: false });
-      }, 3000);
-    }
-
     if (nextProps.exercise.id !== this.props.exercise.id) {
       this.setState({ code: '' });
     }
@@ -52,18 +58,26 @@ export default class Exercise extends Component {
     this.setState({ code });
   }
   submit = () => {
-    this.props.onSubmit(this.state.code);
+    this.props.onSubmit(this.state.code.trim());
   }
   render() {
+    const { error } = this.props;
+
     return (
       <div>
-        <Description>
-          <Task>Tehtävä:</Task><br />
-          {this.props.exercise.description}
-        </Description>
+        {error ? (
+          <Description error>
+            {MESSAGES[error.type](error.error)}
+          </Description>
+        ) : (
+          <Description error={error}>
+            <Task>Tehtävä:</Task><br />
+            {this.props.exercise.description}
+          </Description>
+        )}
         <CodeMirror value={this.state.code} onChange={this.updateCode} options={{ theme: 'blackboard', mode: 'text/x-pgsql' }} />
-        <SubmitButton disabled={this.state.code === ''} incorrect={this.state.incorrect} onClick={this.submit}>
-          {this.state.incorrect ? 'Väärä vastaus' : 'Lähetä vastaus'}
+        <SubmitButton disabled={this.state.code === ''} onClick={this.submit}>
+           Lähetä vastaus
         </SubmitButton>
       </div>
     );

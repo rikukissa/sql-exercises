@@ -37,6 +37,11 @@ public class SessionTryService {
     public SessionTrySyntaxError() { super("Syntax error"); }
   }
 
+  public static class SQLError extends Exception {
+    public SQLError(String message) {
+      super(message);
+    }
+  }
   public static class SessionTry {
     public int id;
     public int exercise;
@@ -95,7 +100,9 @@ public class SessionTryService {
 
   public static SessionTry answerExercise(SessionTry sessionTry, User user)
           throws SessionTryNotCreated, SessionNotFound, SessionTriesExceeded, ExerciseNotFound,
-                  SessionTrySyntaxError {
+                  SessionTrySyntaxError, SQLError {
+
+    sessionTry.finishedAt = new Date();
 
     if(sessionTry.answer.charAt((sessionTry.answer.length() -1)) != ';') {
       throw new SessionTrySyntaxError();
@@ -130,10 +137,10 @@ public class SessionTryService {
       sessionTry.correct = correctAnswer.equals(userAnswerResult);
     } catch (Sql2oException err) {
       sessionTry.correct = false;
+      createSessionTry(sessionTry);
+      throw new SQLError(err.getMessage());
     }
-
-    sessionTry.finishedAt = new Date();
-
+    sessionTry.correct = true;
     return createSessionTry(sessionTry);
   }
 

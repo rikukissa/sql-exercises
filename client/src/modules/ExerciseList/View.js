@@ -37,7 +37,7 @@ export default class ExerciseListView extends Component {
     session: null,
     currentExercise: null,
     currentExerciseStartedAt: null,
-    incorrect: false,
+    error: null,
   }
   componentDidMount = () => {
     this.getExerciseList(this.props.match.params.id);
@@ -124,29 +124,27 @@ export default class ExerciseListView extends Component {
       session,
       currentExerciseStartedAt,
       authorizationToken,
-    ).then(({ correct }) => {
-      if (correct) {
-        this.toNextExercise();
-      } else if (currentTry === session.maxTries) {
-        this.toNextExercise();
-      } else {
-        this.setState({ incorrect: true });
-      }
-    }).catch((err) => {
+    ).then(() =>
+      this.toNextExercise()
+    ).catch((err) => {
       if (err.response.status !== 400) {
         return;
       }
 
-      if (currentTry === session.maxTries) {
+      const { type } = err.response.data;
+
+      if (type === 'tries exceeded') {
         this.toNextExercise();
         return;
       }
 
-      this.setState({ incorrect: true });
+      this.setState(() => ({
+        error: err.response.data,
+      }));
     });
 
     this.setState({
-      incorrect: false,
+      error: null,
       currentTry: currentTry + 1,
     });
   }
@@ -162,7 +160,7 @@ export default class ExerciseListView extends Component {
             Yrityksiä jäljellä: <strong>{this.state.session.maxTries - this.state.currentTry + 1}</strong>
           </CurrentTry>
           <Exercise
-            incorrect={this.state.incorrect}
+            error={this.state.error}
             exercise={this.state.currentExercise}
             onSubmit={this.submitAnswer}
           />

@@ -40,12 +40,16 @@ public class  SessionTryController {
         Response.internalServerError(exception, response)
       );
 
+      exception(SQLError.class, (exception, request, response) ->
+        Response.badRequestWithType(exception.getMessage(), response, "sql")
+      );
+
       exception(SessionTriesExceeded.class, (exception, request, response) ->
-        Response.badRequest(exception, response)
+        Response.badRequestWithType(exception, response, "tries exceed")
       );
 
       exception(SessionTrySyntaxError.class, (exception, request, response) ->
-              Response.badRequest(exception, response)
+        Response.badRequestWithType(exception, response, "syntax")
       );
 
     });
