@@ -19,6 +19,13 @@ const api = axios.create({
 export function getExerciseLists() {
   return api.get(`${ROOT}/exercise-lists`).then(({ data }) => data);
 }
+export function getUser(token) {
+  return api.get(`${ROOT}/users/me`, {
+    headers: {
+      Authorization: token,
+    },
+  }).then(({ data }) => data);
+}
 
 export function getExerciseList(id) {
   return api.get(`${ROOT}/exercise-lists/${id}`).then(({ data }) => data);
