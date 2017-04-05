@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 
 import {
-  BrowserRouter as Router,
+  BrowserRouter,
+  HashRouter,
   Route,
   Link,
 } from 'react-router-dom';
@@ -10,6 +11,10 @@ import {
 import { getExerciseLists } from './service';
 import HomeView from './modules/Home/View';
 import ExerciseListView from './modules/ExerciseList/View';
+
+const Router = process.env.NODE_ENV === 'production' ?
+  HashRouter :
+  BrowserRouter;
 
 const Container = styled.div`
   height: 100%;
