@@ -104,11 +104,7 @@ public class SessionTryService {
 
     sessionTry.finishedAt = new Date();
 
-    if(sessionTry.answer.charAt((sessionTry.answer.length() -1)) != ';') {
-      throw new SessionTrySyntaxError();
-    }
-
-    if(!syntaxChecker(sessionTry.answer)) {
+    if(!isValidSyntax(sessionTry.answer)) {
       throw new SessionTrySyntaxError();
     }
 
@@ -159,23 +155,25 @@ public class SessionTryService {
       throw new SessionTryNotCreated();
     }
   }
-  private static boolean syntaxChecker(String answer) {
-    final char PAR1 = '(';
-    final char PAR2 = ')';
-    int parNum1 = 0;
-    int parNum2 = 0;
-    for(int i = 0; i < answer.length() -1; ++i)
-    {
-      if(answer.charAt(i) == PAR1)
-      {
-        parNum1++;
-      }
-      if(answer.charAt(i) == PAR2)
-      {
-        parNum2++;
-      }
+  private static boolean isValidSyntax(String answer) throws SessionTrySyntaxError {
+    if(answer.charAt((answer.length() -1)) != ';') {
+      throw new SessionTrySyntaxError();
     }
-    return parNum1 == parNum2;
+    else {
+      final char PAR1 = '(';
+      final char PAR2 = ')';
+      int parNum1 = 0;
+      int parNum2 = 0;
+      for (int i = 0; i < answer.length() - 1; ++i) {
+        if (answer.charAt(i) == PAR1) {
+          parNum1++;
+        }
+        if (answer.charAt(i) == PAR2) {
+          parNum2++;
+        }
+      }
+      return parNum1 == parNum2;
+    }
   }
 }
 
