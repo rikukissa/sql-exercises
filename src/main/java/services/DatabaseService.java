@@ -36,12 +36,6 @@ public class DatabaseService {
   }
 
   public static Connection getConnection() {
-    try {
-      Class.forName(DRIVER);
-    } catch (ClassNotFoundException e) {
-      System.out.println("Database driver not found");
-      return null;
-    }
     Sql2o sql2o = new Sql2o(getUrl(), getUsername(), getPassword());
     return sql2o.open();
   }
