@@ -163,11 +163,10 @@ public class SessionTryService {
       throw new SessionTryNotCreated();
     }
   }
-  private static boolean isValidSyntax(String answer) throws SessionTrySyntaxError {
+  private static boolean isValidSyntax(String answer) {
     if(answer.charAt((answer.length() -1)) != ';') {
-      throw new SessionTrySyntaxError();
-    }
-    else {
+      return false;
+    } else {
       final char PAR1 = '(';
       final char PAR2 = ')';
       int parNum1 = 0;
