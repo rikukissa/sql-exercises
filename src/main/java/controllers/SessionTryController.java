@@ -45,7 +45,7 @@ public class  SessionTryController {
       );
 
       exception(SessionTriesExceeded.class, (exception, request, response) ->
-        Response.badRequestWithType(exception, response, "tries exceed")
+        Response.badRequestWithType(exception, response, "tries exceeded")
       );
 
       exception(SessionTrySyntaxError.class, (exception, request, response) ->
