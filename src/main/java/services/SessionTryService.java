@@ -103,21 +103,29 @@ public class SessionTryService {
                   SessionTrySyntaxError, SQLError {
 
     sessionTry.finishedAt = new Date();
-
-    if(!isValidSyntax(sessionTry.answer)) {
-      throw new SessionTrySyntaxError();
-    }
-
-
+    sessionTry.correct = false;
     Session session = getSessionById(sessionTry.session);
-    Exercise exercise = getExerciseById(sessionTry.exercise);
 
     List<SessionTry> previousTries =
-      getSessionTriesBySessionAndExercise(sessionTry.session, sessionTry.exercise);
+            getSessionTriesBySessionAndExercise(sessionTry.session, sessionTry.exercise);
 
+    // Has max amount of tries been reached?
     if(previousTries.size() == session.maxTries) {
       throw new SessionTriesExceeded();
     }
+
+    // Is answer syntactically correct?
+    if(sessionTry.answer.charAt((sessionTry.answer.length() -1)) != ';') {
+      createSessionTry(sessionTry);
+      throw new SessionTrySyntaxError();
+    }
+
+    if(!isValidSyntax(sessionTry.answer)) {
+      createSessionTry(sessionTry);
+      throw new SessionTrySyntaxError();
+    }
+
+    Exercise exercise = getExerciseById(sessionTry.exercise);
 
     try(Connection con = DatabaseService.getConnection()) {
       List<Map<String,Object>> correctAnswer = con
