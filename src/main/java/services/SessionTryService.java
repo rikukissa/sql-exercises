@@ -82,6 +82,22 @@ public class SessionTryService {
       return sessions.get(0);
     }
   }
+
+  public static List<SessionTry> getSessionTriesBySession(int id) {
+    String sql = "SELECT * FROM session_try WHERE session = :id";
+
+    try(Connection con = DatabaseService.getConnection()) {
+      List<SessionTry> sessionTries = con
+        .createQuery(sql)
+        .addParameter("id", id)
+        .addColumnMapping("started_at", "startedAt")
+        .addColumnMapping("finished_at", "finishedAt")
+        .executeAndFetch(SessionTry.class);
+
+      return sessionTries;
+    }
+  }
+
   public static List<SessionTry> getSessionTriesBySessionAndExercise(int id, int exercise) {
     String sql = "SELECT * FROM session_try WHERE session = :id AND exercise = :exercise";
 

@@ -7,7 +7,11 @@ import controllers.utils.Request;
 import controllers.utils.Response;
 import services.UserService.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static services.SessionService.*;
+import static services.SessionTryService.*;
 
 public class SessionController {
 
@@ -16,10 +20,28 @@ public class SessionController {
 
       before("/*", Request::requiresAuthentication);
 
+      /*
+       * Get all sessions
+       */
+
+      get("", (req, res) -> {
+        int id = Integer.parseInt(req.queryParams("user"));
+
+        List<Session> sessions = getSessionsByUser(id);
+
+        List<Session> response = sessions.stream().map(session -> {
+          session.populateSessionTries(getSessionTriesBySession(session.id));
+          return session;
+        })
+        .collect(Collectors.toList());
+
+        return Response.ok(res, response);
+      });
+
 
       /*
-      * Get session by id
-      */
+       * Get session by id
+       */
 
       get("/:id", (req, res) -> {
         int id = Integer.parseInt(req.params(":id"));

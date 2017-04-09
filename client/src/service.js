@@ -26,6 +26,13 @@ export function getUser(token) {
     },
   }).then(({ data }) => data);
 }
+export function getSessions(user, token) {
+  return api.get(`${ROOT}/sessions?user=${user.id}`, {
+    headers: {
+      Authorization: token,
+    },
+  }).then(({ data }) => data);
+}
 
 export function getExerciseList(id) {
   return api.get(`${ROOT}/exercise-lists/${id}`).then(({ data }) => data);

@@ -16,6 +16,7 @@ import {
 import HomeView from './modules/Home/View';
 import ExerciseListView from './modules/ExerciseList/View';
 import UserWidget from './modules/User/Widget';
+import UserView from './modules/User/View';
 import LoginModal from './modules/Login/Modal';
 
 const Router = process.env.NODE_ENV === 'production' ?
@@ -76,6 +77,7 @@ class App extends Component {
           <Content>
             <Route exact path="/" component={HomeView} />
             <Route path="/exercise-lists/:id" component={ExerciseListView} />
+            <Route path="/me" component={UserView} />
           </Content>
           <LoginModal />
         </Container>
