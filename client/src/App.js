@@ -16,6 +16,7 @@ import {
 import HomeView from './modules/Home/View';
 import ExerciseListView from './modules/ExerciseList/View';
 import UserWidget from './modules/User/Widget';
+import LoginModal from './modules/Login/Modal';
 
 const Router = process.env.NODE_ENV === 'production' ?
   HashRouter :
@@ -76,6 +77,7 @@ class App extends Component {
             <Route exact path="/" component={HomeView} />
             <Route path="/exercise-lists/:id" component={ExerciseListView} />
           </Content>
+          <LoginModal />
         </Container>
       </Router>
     );

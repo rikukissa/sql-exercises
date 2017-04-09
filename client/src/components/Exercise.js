@@ -17,11 +17,12 @@ const SubmitButton = styled(Button)`
     ` : ''};
 `;
 
-const Description = styled.p`
+const Description = styled.div`
   transition: background-color 300ms;
   background: #3bbf9d;
   ${({ error }) => error ? 'background-color: #ea5250;' : ''};
   color: #ffffff;
+  margin-top: 1em;
   margin-bottom: 0;
   padding: 1em;
 `;
@@ -32,6 +33,7 @@ const Task = styled.strong`
 `;
 
 const MESSAGES = {
+  unexpected: () => 'Jotain meni pieleen',
   sql: (message) => (
     <div>
       <strong>

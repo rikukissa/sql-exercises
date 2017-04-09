@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { login, logout } from '../../state';
+import { showLogin, logout } from '../../state';
 
 const LoginLink = styled.button`
   font-size: 14px;
@@ -43,7 +43,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     logout: () => dispatch(logout()),
-    login: () => dispatch(login()),
+    login: () => dispatch(showLogin()),
   };
 }
 

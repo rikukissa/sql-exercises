@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 import styled from 'styled-components';
-import Modal from 'react-modal';
-import { getExerciseList, createSession, submitAnswer, login } from '../../service';
+import { getExerciseList, createSession, submitAnswer } from '../../service';
 import Exercise from '../../components/Exercise';
 import Button from '../../components/Button';
+import { showLogin } from '../../state';
 
 const StartButton = styled(Button)`
   width: 400px;
 `;
-
-const SubmitButton = styled(Button)``;
 
 const ExerciseTitle = styled.h2`
   margin-bottom: 0;
@@ -20,19 +20,9 @@ const CurrentTry = styled.span`
   color: #6d6d6d;
 `;
 
-const storedToken = window.localStorage.getItem('token');
-
-export default class ExerciseListView extends Component {
+class ExerciseListView extends Component {
   state = {
     exerciseList: null,
-    loginModalVisible: false,
-    studentNumber: '',
-
-    // Authentication stuff
-    authorizationToken: storedToken,
-    loginFailed: false,
-
-    // Exercise related stuff
     currentTry: 1,
     session: null,
     currentExercise: null,
@@ -43,18 +33,16 @@ export default class ExerciseListView extends Component {
     this.getExerciseList(this.props.match.params.id);
   }
   componentWillReceiveProps(nextProps) {
-    if (this.props.match.params.id !== nextProps.match.params.id) {
+    const exerciseIdChanged = this.props.match.params.id !== nextProps.match.params.id;
+    const justLoggedIn = !this.props.loggedIn && nextProps.loggedIn;
+
+    if (exerciseIdChanged) {
       this.getExerciseList(nextProps.match.params.id);
     }
-  }
-  onLogin = (token) => {
-    window.localStorage.setItem('token', token);
 
-    this.setState({
-      loginModalVisible: false,
-      authorizationToken: token,
-    });
-    this.createSession(token).then(this.startExercises);
+    if (justLoggedIn && this.state.exerciseList) {
+      this.startExercises();
+    }
   }
   getExerciseList = (id) => {
     getExerciseList(id).then((exerciseList) =>
@@ -62,15 +50,16 @@ export default class ExerciseListView extends Component {
     ));
   }
   start = () => {
-    const loggedIn = this.state.authorizationToken !== null;
+    const loggedIn = this.props.loggedIn;
 
     if (!loggedIn) {
-      this.setState({ loginModalVisible: true });
+      this.props.showLogin();
       return;
     }
-    this.onLogin(this.state.authorizationToken);
+    this.startExercises();
   }
-  startExercises = () => {
+  startExercises = async () => {
+    await this.createSession();
     this.setState({
       currentExercise: this.state.exerciseList.exercises[0],
       currentExerciseStartedAt: new Date(),
@@ -88,34 +77,24 @@ export default class ExerciseListView extends Component {
     }
 
     this.setState({
+      error: null,
       currentTry: 1,
       currentExercise: exercises[currentExerciseIndex + 1],
       currentExerciseStartedAt: new Date(),
     });
   }
-  createSession = (token) => {
-    return createSession(this.state.exerciseList, token).then((session) => {
+  createSession = () => {
+    return createSession(this.state.exerciseList, this.props.token).then((session) => {
       this.setState({ session });
     });
   }
-  storeStudentNumber = (event) => {
-    this.setState({ studentNumber: event.target.value });
-  }
-  login = () => {
-    // Reset current login state
-    this.setState({ loginFailed: false });
 
-    login(this.state.studentNumber)
-      .then(({ token }) => this.onLogin(token))
-      .catch(() => this.setState({ loginFailed: true }));
-  }
   submitAnswer = (code) => {
     const {
       currentTry,
       currentExercise,
       session,
       currentExerciseStartedAt,
-      authorizationToken,
     } = this.state;
 
     submitAnswer(
@@ -123,25 +102,27 @@ export default class ExerciseListView extends Component {
       currentExercise,
       session,
       currentExerciseStartedAt,
-      authorizationToken,
+      this.props.token,
     ).then(() =>
-      this.toNextExercise()
+      this.toNextExercise(),
     ).catch((err) => {
-      if (err.response.status !== 400) {
-        return;
-      }
-
-      const { type } = err.response.data;
-
-      if (type === 'tries exceeded') {
+      if (currentTry === this.state.session.maxTries) {
         this.toNextExercise();
         return;
       }
-
-      this.setState(() => ({
-        error: err.response.data,
-      }));
+      if (err.response.status === 400) {
+        this.setState(() => ({
+          error: err.response.data,
+        }));
+      } else {
+        this.setState(() => ({
+          error: {
+            type: 'unexpected',
+          },
+        }));
+      }
     });
+
 
     this.setState({
       error: null,
@@ -170,17 +151,6 @@ export default class ExerciseListView extends Component {
 
     return (
       <div>
-        <Modal
-          isOpen={this.state.loginModalVisible}
-          contentLabel="Modal"
-        >
-          <h2>Kirjaudu sisään</h2>
-          <div>
-            <label>Opiskelijanumero</label>
-            <input onChange={this.storeStudentNumber} type="text" />
-          </div>
-          <SubmitButton onClick={this.login}>Kirjaudu sisään</SubmitButton>
-        </Modal>
         <p>
           {this.state.exerciseList && this.state.exerciseList.description}
         </p>
@@ -191,3 +161,17 @@ export default class ExerciseListView extends Component {
   }
 }
 
+function mapStateToProps({ user, token }) {
+  return {
+    loggedIn: user !== null,
+    token,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    showLogin: () => dispatch(showLogin()),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ExerciseListView);

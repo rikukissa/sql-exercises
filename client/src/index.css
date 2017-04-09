@@ -27,3 +27,19 @@ button {
   padding: 1em;
   box-sizing: border-box;
 }
+
+.ReactModal__Overlay {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ReactModal__Content {
+  min-width: 400px;
+  padding: 30px !important;
+  bottom: auto !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  position: static !important;
+  margin: 0 20px !important;
+}
