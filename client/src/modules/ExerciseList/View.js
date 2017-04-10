@@ -46,7 +46,7 @@ class ExerciseListView extends Component {
   }
   getExerciseList = (id) => {
     getExerciseList(id).then((exerciseList) =>
-      this.setState(() => ({ exerciseList }),
+      this.setState(() => ({ exerciseList, currentExercise: null }),
     ));
   }
   start = () => {
