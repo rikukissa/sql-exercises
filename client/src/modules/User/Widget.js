@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-
+import { Link } from 'react-router-dom';
 import { showLogin, logout } from '../../state';
 
 const LoginLink = styled.button`
@@ -11,18 +11,22 @@ const LoginLink = styled.button`
   color: #349ad0;
 `;
 
-const LogoutLink = styled(LoginLink)`
+const LogoutLink = styled(Link)`
   font-size: 12px;
+  border: 0;
+  background: none;
+  color: #349ad0;
+  margin-left: 0.5em;
 `;
 
 class UserWidget extends Component {
   render() {
     return (
       <div className={this.props.className}>
-        {this.props.user ? (
+        { this.props.user ? (
           <div>
-            {this.props.user.name}
-            <LogoutLink onClick={this.props.logout}>
+            <Link to="/me">{this.props.user.name}</Link>
+            <LogoutLink to="/" onClick={this.props.logout}>
               (Kirjaudu ulos)
             </LogoutLink>
           </div>

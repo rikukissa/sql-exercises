@@ -47,10 +47,12 @@ const ExerciseList = styled(Link)`
   border-bottom: 1px solid #d6d6d6;
 `;
 
+const UserDetailsContainer = styled.div`
+  overflow: auto;
+`;
+
 const UserDetails = styled(UserWidget)`
-  position: absolute;
-  right: 1em;
-  top: 1em;
+  float: right;
 `;
 
 class App extends Component {
@@ -73,8 +75,10 @@ class App extends Component {
             }
             </ul>
           </Sidebar>
-          <UserDetails />
           <Content>
+            <UserDetailsContainer>
+              <UserDetails />
+            </UserDetailsContainer>
             <Route exact path="/" component={HomeView} />
             <Route path="/exercise-lists/:id" component={ExerciseListView} />
             <Route path="/me" component={UserView} />
