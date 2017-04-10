@@ -10,6 +10,7 @@ import {
 
 import {
   getUser,
+  getUsers,
   getExerciseLists,
 } from './state';
 
@@ -17,6 +18,7 @@ import HomeView from './modules/Home/View';
 import ExerciseListView from './modules/ExerciseList/View';
 import UserWidget from './modules/User/Widget';
 import UserView from './modules/User/View';
+import UserListView from './modules/User/ListView';
 import LoginModal from './modules/Login/Modal';
 
 const Router = process.env.NODE_ENV === 'production' ?
@@ -55,12 +57,37 @@ const UserDetails = styled(UserWidget)`
   float: right;
 `;
 
+const Tools = styled.div`
+  padding: 1em;
+`;
+
+const ToolsHeader = styled.div`
+  margin-bottom: 0.5em;
+  font-weight: bold;
+`;
+
+const canViewUsers = (user) =>
+  ['teacher', 'admin'].indexOf(user.role) > -1;
+
 class App extends Component {
   componentDidMount = () => {
     this.props.getUser();
     this.props.getExerciseLists();
+
+    if (this.props.user && canViewUsers(this.props.user)) {
+      this.props.getUsers();
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    const userLoaded = !this.props.user && nextProps.user;
+    if (userLoaded && canViewUsers(nextProps.user)) {
+      this.props.getUsers();
+    }
   }
   render() {
+    const canViewRaports = this.props.loggedIn &&
+      ['teacher', 'admin'].indexOf(this.props.user.role) > -1;
+
     return (
       <Router>
         <Container>
@@ -74,6 +101,16 @@ class App extends Component {
               )
             }
             </ul>
+            <Tools>
+              <ToolsHeader>
+                Opettajan työkalut:
+              </ToolsHeader>
+              {
+                canViewRaports && (
+                  <Link to="/users">Selaa käyttäjiä</Link>
+                )
+              }
+            </Tools>
           </Sidebar>
           <Content>
             <UserDetailsContainer>
@@ -82,6 +119,8 @@ class App extends Component {
             <Route exact path="/" component={HomeView} />
             <Route path="/exercise-lists/:id" component={ExerciseListView} />
             <Route path="/me" component={UserView} />
+            <Route exact path="/users" component={UserListView} />
+            <Route path="/users/:id" component={UserView} />
           </Content>
           <LoginModal />
         </Container>
@@ -92,12 +131,15 @@ class App extends Component {
 
 function mapStateToProps(state) {
   return {
+    loggedIn: state.user !== null,
+    user: state.user,
     exerciseLists: state.exerciseLists,
   };
 }
 function mapDispatchToProps(dispatch) {
   return {
     getUser: () => dispatch(getUser()),
+    getUsers: () => dispatch(getUsers()),
     getExerciseLists: () => dispatch(getExerciseLists()),
   };
 }

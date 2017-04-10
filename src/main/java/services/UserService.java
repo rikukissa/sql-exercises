@@ -57,6 +57,18 @@ public class UserService {
       return users.get(0);
     }
   }
+  public static List<User> getUsers() {
+    String sql = "SELECT * FROM \"user\"";
+
+    try(Connection con = DatabaseService.getConnection()) {
+      List<User> users = con
+        .createQuery(sql)
+        .addColumnMapping("student_number", "studentNumber")
+        .executeAndFetch(User.class);
+
+      return users;
+    }
+  }
 
   public static User createUser(User user) throws UserNotCreated {
     String sql = "INSERT INTO \"user\" (name, student_number, field, role) " +

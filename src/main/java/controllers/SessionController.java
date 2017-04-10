@@ -27,6 +27,8 @@ public class SessionController {
       get("", (req, res) -> {
         int id = Integer.parseInt(req.queryParams("user"));
 
+        // @todo check that requesting user is the user requested or has a role of teacher or admin
+
         List<Session> sessions = getSessionsByUser(id);
 
         List<Session> response = sessions.stream().map(session -> {

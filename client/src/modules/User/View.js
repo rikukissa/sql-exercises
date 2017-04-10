@@ -172,13 +172,24 @@ function getTriesForNthExercise(exerciseN, session) {
 
 class UserView extends Component {
   componentDidMount() {
+    if (this.props.match.params.id) {
+      this.props.getSessions(parseInt(this.props.match.params.id, 10));
+      return;
+    }
+
     if (this.props.user) {
       this.props.getSessions(this.props.user);
     }
   }
   componentWillReceiveProps(nextProps) {
     const userLoaded = !this.props.user && nextProps.user;
-    if (userLoaded) {
+    const idChanged = this.props.match.params.id !== nextProps.match.params.id;
+
+    if (userLoaded || idChanged) {
+      if (this.props.match.params.id) {
+        this.props.getSessions(parseInt(nextProps.match.params.id, 10));
+        return;
+      }
       this.props.getSessions(nextProps.user);
     }
   }
@@ -219,10 +230,28 @@ class UserView extends Component {
       return finished.length === list.exerciseAmount;
     });
   }
+  getUser = () => {
+    if (!this.props.match.params.id) {
+      return this.props.user;
+    }
+
+    const id = parseInt(this.props.match.params.id, 10);
+    return this.props.users.find((user) => user.id === id);
+  }
+
   render() {
+    const user = this.getUser();
+    const isMe = (!user || !this.props.user) || (user.id === this.props.user.id);
+
     return (
       <div>
-        <h2>Omat suorituksesi</h2>
+        {
+          isMe ? (
+            <h2>Omat suorituksesi</h2>
+          ) : (
+            <h2>Käyttäjän {user.name} suoritukset</h2>
+          )
+        }
         <ExerciseLists>
 
           {
@@ -310,6 +339,7 @@ class UserView extends Component {
 function mapStateToProps(state) {
   return {
     user: state.user,
+    users: state.users,
     sessions: state.sessions,
     exerciseLists: state.exerciseLists,
   };
@@ -317,7 +347,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getSessions: (user) => dispatch(getSessions(user)),
+    getSessions: (userId) => dispatch(getSessions(userId)),
   };
 }
 

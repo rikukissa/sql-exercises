@@ -52,6 +52,15 @@ public class UserController {
       before("/*", Request::requiresAuthentication);
 
       /*
+      * Get all users
+      */
+
+      get("", (req, res) -> {
+        // @todo check role: admin || teacher
+        return Response.ok(res, getUsers());
+      });
+
+      /*
       * Get currently logged in user
       */
 

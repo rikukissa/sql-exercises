@@ -3,6 +3,7 @@ import {
   getUser as fetchUser,
   login as doLogin,
   getSessions as fetchSessions,
+  getUsers as fetchUsers,
 } from './service';
 
 
@@ -14,18 +15,25 @@ const STORE_TOKEN = 'STORE_TOKEN';
 const LOGIN_FAILED = 'LOGIN_FAILED';
 const LOGGED_IN = 'LOGGED_IN';
 const SESSIONS_LOADED = 'SESSIONS_LOADED';
+const USERS_LOADED = 'USERS_LOADED';
 
 
 export function getUser() {
   return (dispatch, getState) => {
     const { token } = getState();
 
-    if (!token) {
-      return;
-    }
-
     fetchUser(token).then((user) =>
       dispatch({ type: LOGGED_IN, payload: user }),
+    );
+  };
+}
+
+export function getUsers() {
+  return (dispatch, getState) => {
+    const { token } = getState();
+
+    fetchUsers(token).then((users) =>
+      dispatch({ type: USERS_LOADED, payload: users }),
     );
   };
 }
@@ -38,10 +46,10 @@ export function getExerciseLists() {
   };
 }
 
-export function getSessions(user) {
+export function getSessions(userId) {
   return async (dispatch, getState) => {
     const { token } = getState();
-    const sessions = await fetchSessions(user, token);
+    const sessions = await fetchSessions(userId, token);
     dispatch({ type: SESSIONS_LOADED, payload: sessions });
   };
 }
@@ -69,6 +77,7 @@ export function showLogin() {
 
 const INITIAL_STATE = {
   user: null,
+  users: [],
   loggingIn: false,
   token: window.localStorage.getItem('token'),
   exerciseLists: [],
@@ -103,6 +112,9 @@ export default function (state = INITIAL_STATE, action) {
     }
     case SESSIONS_LOADED: {
       return { ...state, sessions: action.payload };
+    }
+    case USERS_LOADED: {
+      return { ...state, users: action.payload };
     }
     default: {
       return state;

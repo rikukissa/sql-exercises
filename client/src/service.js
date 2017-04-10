@@ -19,6 +19,7 @@ const api = axios.create({
 export function getExerciseLists() {
   return api.get(`${ROOT}/exercise-lists`).then(({ data }) => data);
 }
+
 export function getUser(token) {
   return api.get(`${ROOT}/users/me`, {
     headers: {
@@ -26,8 +27,17 @@ export function getUser(token) {
     },
   }).then(({ data }) => data);
 }
-export function getSessions(user, token) {
-  return api.get(`${ROOT}/sessions?user=${user.id}`, {
+
+export function getUsers(token) {
+  return api.get(`${ROOT}/users`, {
+    headers: {
+      Authorization: token,
+    },
+  }).then(({ data }) => data);
+}
+
+export function getSessions(userId, token) {
+  return api.get(`${ROOT}/sessions?user=${userId}`, {
     headers: {
       Authorization: token,
     },
