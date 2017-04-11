@@ -1,1 +1,0 @@
-update example_answer set answer = 'SELECT nimi FROM opiskelijat WHERE p_aine = "TKO";' WHERE exercise = 1;

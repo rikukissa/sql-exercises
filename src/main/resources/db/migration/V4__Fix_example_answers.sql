@@ -1,2 +1,0 @@
-update example_answer set answer = 'SELECT nimi FROM opiskelijat WHERE p_aine = ''TKO'';' WHERE exercise = 1;
-update example_answer set answer = 'SELECT suoritukset.arvosana FROM opiskelijat, suoritukset WHERE opiskelijat.nro = suoritukset.op_nro AND opiskelijat.nimi = ''Ville'';' WHERE exercise = 2;
