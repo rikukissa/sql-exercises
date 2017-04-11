@@ -101,16 +101,16 @@ class App extends Component {
               )
             }
             </ul>
-            <Tools>
-              <ToolsHeader>
-                Opettajan työkalut:
-              </ToolsHeader>
-              {
-                canViewRaports && (
+            {
+              canViewRaports && (
+                <Tools>
+                  <ToolsHeader>
+                    Opettajan työkalut:
+                  </ToolsHeader>
                   <Link to="/users">Selaa käyttäjiä</Link>
-                )
-              }
-            </Tools>
+                </Tools>
+              )
+            }
           </Sidebar>
           <Content>
             <UserDetailsContainer>
