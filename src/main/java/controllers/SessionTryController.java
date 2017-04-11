@@ -15,6 +15,7 @@ public class  SessionTryController {
   public static void init() {
     path("/session-tries", () -> {
 
+      before("", Request::requiresAuthentication);
       before("/*", Request::requiresAuthentication);
 
 
@@ -25,7 +26,7 @@ public class  SessionTryController {
       post("",  (req, res) -> {
         SessionTry sessionTry = Request.getBodyAs(req.body(), SessionTry.class);
 
-        String studentNumber = Request.getAuthIdentifier(req);
+        String studentNumber = Request.getStudentNumber(req);
         User user = getUserByStudentNumber(studentNumber);
 
         SessionTry createdSessionTry = answerExercise(sessionTry, user);

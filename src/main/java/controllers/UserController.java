@@ -5,8 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import controllers.utils.Request;
 import controllers.utils.Response;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static services.UserService.*;
 import static spark.Spark.*;
@@ -38,6 +37,8 @@ public class UserController {
       }
 
       Map<String, Object> headerClaims = new HashMap<>();
+      headerClaims.put("id", user.id);
+      headerClaims.put("role", user.role);
       headerClaims.put("studentNumber", user.studentNumber);
 
       String token = JWT.create()
@@ -49,6 +50,7 @@ public class UserController {
 
     path("/users", () -> {
 
+      before("", Request::requiresAuthentication);
       before("/*", Request::requiresAuthentication);
 
       /*
@@ -56,7 +58,7 @@ public class UserController {
       */
 
       get("", (req, res) -> {
-        // @todo check role: admin || teacher
+        Request.requiresRole(req, res, Arrays.asList(User.TEACHER, User.ADMIN));
         return Response.ok(res, getUsers());
       });
 
@@ -65,7 +67,7 @@ public class UserController {
       */
 
       get("/me", (req, res) -> {
-        String studentNumber = Request.getAuthIdentifier(req);
+        String studentNumber = Request.getStudentNumber(req);
         return Response.ok(res, getUserByStudentNumber(studentNumber));
       });
 

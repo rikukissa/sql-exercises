@@ -8,6 +8,11 @@ public class UserService {
   public static class UserNotCreated extends Exception {}
 
   public static class User {
+
+    // Roles
+    public static String TEACHER = "teacher";
+    public static String ADMIN = "admin";
+
     public int id;
     public String name;
     public String studentNumber;

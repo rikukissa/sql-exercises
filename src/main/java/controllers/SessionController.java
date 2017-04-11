@@ -7,6 +7,7 @@ import controllers.utils.Request;
 import controllers.utils.Response;
 import services.UserService.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ public class SessionController {
   public static void init() {
     path("/sessions", () -> {
 
+      before("", Request::requiresAuthentication);
       before("/*", Request::requiresAuthentication);
 
       /*
@@ -27,7 +29,13 @@ public class SessionController {
       get("", (req, res) -> {
         int id = Integer.parseInt(req.queryParams("user"));
 
-        // @todo check that requesting user is the user requested or has a role of teacher or admin
+        boolean isOwner =
+          Request.getUserId(req) != id ||
+          !Request.hasOneOfRoles(req, Arrays.asList(User.TEACHER, User.ADMIN));
+
+        if(!isOwner) {
+          return Response.unauthorized(res);
+        }
 
         List<Session> sessions = getSessionsByUser(id);
 
@@ -65,7 +73,7 @@ public class SessionController {
       post("",  (req, res) -> {
         Session session = Request.getBodyAs(req.body(), Session.class);
 
-        String studentNumber = Request.getAuthIdentifier(req);
+        String studentNumber = Request.getStudentNumber(req);
         User user = getUserByStudentNumber(studentNumber);
 
         session.user = user.id;
