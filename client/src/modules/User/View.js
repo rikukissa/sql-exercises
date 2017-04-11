@@ -178,7 +178,7 @@ class UserView extends Component {
     }
 
     if (this.props.user) {
-      this.props.getSessions(this.props.user);
+      this.props.getSessions(this.props.user.id);
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -190,7 +190,7 @@ class UserView extends Component {
         this.props.getSessions(parseInt(nextProps.match.params.id, 10));
         return;
       }
-      this.props.getSessions(nextProps.user);
+      this.props.getSessions(nextProps.user.id);
     }
   }
   getSessionsForExerciseList(exerciseList) {
