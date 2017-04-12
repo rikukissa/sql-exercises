@@ -7,6 +7,10 @@ import styled from 'styled-components';
 
 import Button from './Button';
 
+const ExerciseContainer = styled.div`
+  margin-top: 1em;
+`;
+
 const SubmitButton = styled(Button)`
   display: block;
   width: 100%;
@@ -21,7 +25,6 @@ const Description = styled.div`
   background: #3bbf9d;
   ${({ error }) => error ? 'background-color: #ea5250;' : ''};
   color: #ffffff;
-  margin-top: 1em;
   margin-bottom: 0;
   padding: 1em;
 `;
@@ -42,7 +45,8 @@ const MESSAGES = {
       {message}
     </div>
   ),
-  syntax: () => 'Syntaksivirhe',
+  syntax: () =>
+    'Kyselyn tulee päättyä puolipisteeseen ja siinä tulee olla parillinen määrä sulkuja',
   'tries exceeded': () => 'Yritysten maksimimäärä ylitetty',
 };
 
@@ -65,14 +69,14 @@ export default class Exercise extends Component {
     const { error } = this.props;
 
     return (
-      <div>
-        {error
-          ? <Description error>
+      <ExerciseContainer>
+        <Description>
+          <Task>Tehtävä:</Task><br />
+          {this.props.exercise.description}
+        </Description>
+        {error &&
+          <Description error>
             {MESSAGES[error.type](error.error)}
-          </Description>
-          : <Description error={error}>
-            <Task>Tehtävä:</Task><br />
-            {this.props.exercise.description}
           </Description>}
         <CodeMirror
           value={this.state.code}
@@ -82,7 +86,7 @@ export default class Exercise extends Component {
         <SubmitButton disabled={this.state.code === ''} onClick={this.submit}>
           Lähetä vastaus
         </SubmitButton>
-      </div>
+      </ExerciseContainer>
     );
   }
 }
