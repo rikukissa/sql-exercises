@@ -30,7 +30,7 @@ public class SessionController {
         int id = Integer.parseInt(req.queryParams("user"));
 
         boolean isOwner =
-          Request.getUserId(req) != id ||
+          Request.getUserId(req) == id ||
           !Request.hasOneOfRoles(req, Arrays.asList(User.TEACHER, User.ADMIN));
 
         if(!isOwner) {
