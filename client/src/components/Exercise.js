@@ -11,8 +11,7 @@ const SubmitButton = styled(Button)`
   display: block;
   width: 100%;
   margin-top: 1em;
-  ${({ disabled }) => disabled ?
-   `opacity: 0.5;
+  ${({ disabled }) => disabled ? `opacity: 0.5;
     cursor: not-allowed;
     ` : ''};
 `;
@@ -50,7 +49,7 @@ const MESSAGES = {
 export default class Exercise extends Component {
   state = {
     code: '',
-  }
+  };
   componentWillReceiveProps(nextProps) {
     if (nextProps.exercise.id !== this.props.exercise.id) {
       this.setState({ code: '' });
@@ -58,28 +57,30 @@ export default class Exercise extends Component {
   }
   updateCode = (code) => {
     this.setState({ code });
-  }
+  };
   submit = () => {
     this.props.onSubmit(this.state.code.trim());
-  }
+  };
   render() {
     const { error } = this.props;
 
     return (
       <div>
-        {error ? (
-          <Description error>
+        {error
+          ? <Description error>
             {MESSAGES[error.type](error.error)}
           </Description>
-        ) : (
-          <Description error={error}>
+          : <Description error={error}>
             <Task>Tehtävä:</Task><br />
             {this.props.exercise.description}
-          </Description>
-        )}
-        <CodeMirror value={this.state.code} onChange={this.updateCode} options={{ theme: 'blackboard', mode: 'text/x-pgsql' }} />
+          </Description>}
+        <CodeMirror
+          value={this.state.code}
+          onChange={this.updateCode}
+          options={{ theme: 'blackboard', mode: 'text/x-pgsql' }}
+        />
         <SubmitButton disabled={this.state.code === ''} onClick={this.submit}>
-           Lähetä vastaus
+          Lähetä vastaus
         </SubmitButton>
       </div>
     );

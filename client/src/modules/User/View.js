@@ -103,33 +103,39 @@ function finishedExercises(session) {
 function fastestExerciseTime(session) {
   const triesPerExercise = groupBy(session.sessionTries, 'exercise');
 
-  return values(triesPerExercise).reduce((memo, tries) => {
-    const sortedTries = sortTriesByStart(tries);
-    const start = sortedTries[0].startedAt;
-    const end = sortedTries[sortedTries.length - 1].finishedAt;
+  return values(triesPerExercise).reduce(
+    (memo, tries) => {
+      const sortedTries = sortTriesByStart(tries);
+      const start = sortedTries[0].startedAt;
+      const end = sortedTries[sortedTries.length - 1].finishedAt;
 
-    const time = differenceInSeconds(end, start);
-    if (memo === null || time < memo) {
-      return time;
-    }
-    return memo;
-  }, null);
+      const time = differenceInSeconds(end, start);
+      if (memo === null || time < memo) {
+        return time;
+      }
+      return memo;
+    },
+    null,
+  );
 }
 
 function slowestExerciseTime(session) {
   const triesPerExercise = groupBy(session.sessionTries, 'exercise');
 
-  return values(triesPerExercise).reduce((memo, tries) => {
-    const sortedTries = sortTriesByStart(tries);
-    const start = sortedTries[0].startedAt;
-    const end = sortedTries[sortedTries.length - 1].finishedAt;
+  return values(triesPerExercise).reduce(
+    (memo, tries) => {
+      const sortedTries = sortTriesByStart(tries);
+      const start = sortedTries[0].startedAt;
+      const end = sortedTries[sortedTries.length - 1].finishedAt;
 
-    const time = differenceInSeconds(end, start);
-    if (memo === null || time > memo) {
-      return time;
-    }
-    return memo;
-  }, null);
+      const time = differenceInSeconds(end, start);
+      if (memo === null || time > memo) {
+        return time;
+      }
+      return memo;
+    },
+    null,
+  );
 }
 
 function averageExerciseTime(session) {
@@ -146,15 +152,18 @@ function averageExerciseTime(session) {
 }
 
 function getLatestSessionForExerciseList(exerciseList, sessions) {
-  const sessionsForExerciseList = sessions.filter((session) =>
-    session.exerciseList === exerciseList.id,
+  const sessionsForExerciseList = sessions.filter(
+    (session) => session.exerciseList === exerciseList.id,
   );
 
   if (sessionsForExerciseList.length === 0) {
     return null;
   }
 
-  const sessionsSortedByTime = sortBy(sessionsForExerciseList, ({ startedAt }) => new Date(startedAt));
+  const sessionsSortedByTime = sortBy(
+    sessionsForExerciseList,
+    ({ startedAt }) => new Date(startedAt),
+  );
 
   return sessionsSortedByTime[sessionsSortedByTime.length - 1];
 }
@@ -196,6 +205,14 @@ class UserView extends Component {
   getSessionsForExerciseList(exerciseList) {
     return this.props.sessions.filter((session) => session.exerciseList === exerciseList.id);
   }
+  getUser = () => {
+    if (!this.props.match.params.id) {
+      return this.props.user;
+    }
+
+    const id = parseInt(this.props.match.params.id, 10);
+    return this.props.users.find((user) => user.id === id);
+  };
   isExerciseCompleted(exerciseN, exerciseList) {
     const latestSession = getLatestSessionForExerciseList(exerciseList, this.props.sessions);
     if (!latestSession) {
@@ -225,111 +242,98 @@ class UserView extends Component {
         return false;
       }
 
-      const finished = values(triesPerExercise).filter((tries) => isCompleted(tries, session.maxTries));
+      const finished = values(triesPerExercise).filter((tries) =>
+        isCompleted(tries, session.maxTries));
 
       return finished.length === list.exerciseAmount;
     });
   }
-  getUser = () => {
-    if (!this.props.match.params.id) {
-      return this.props.user;
-    }
-
-    const id = parseInt(this.props.match.params.id, 10);
-    return this.props.users.find((user) => user.id === id);
-  }
 
   render() {
     const user = this.getUser();
-    const isMe = (!user || !this.props.user) || (user.id === this.props.user.id);
+    const isMe = !user || !this.props.user || user.id === this.props.user.id;
 
     return (
       <div>
-        {
-          isMe ? (
-            <h2>Omat suorituksesi</h2>
-          ) : (
-            <h2>Käyttäjän {user.name} suoritukset</h2>
-          )
-        }
+        {isMe ? <h2>Omat suorituksesi</h2> : <h2>Käyttäjän {user.name} suoritukset</h2>}
         <ExerciseLists>
 
-          {
-            this.props.exerciseLists.map((exerciseList) => {
-              const completed = this.isExerciseListCompleted(exerciseList);
+          {this.props.exerciseLists.map((exerciseList) => {
+            const completed = this.isExerciseListCompleted(exerciseList);
 
-              return (
-                <ExerciseList key={exerciseList.id}>
-                  <ExerciseListHeader key={exerciseList.id}>
-                    <ExerciseListTitle>
-                      {completed && <Success>✅</Success>}
-                      {exerciseList.description}
-                    </ExerciseListTitle>
-                    <Tasks>
-                      {
-                        range(exerciseList.exerciseAmount).map((i) => {
-                          const taskNum = i + 1;
+            return (
+              <ExerciseList key={exerciseList.id}>
+                <ExerciseListHeader key={exerciseList.id}>
+                  <ExerciseListTitle>
+                    {completed && <Success>✅</Success>}
+                    {exerciseList.description}
+                  </ExerciseListTitle>
+                  <Tasks>
+                    {range(exerciseList.exerciseAmount).map((i) => {
+                      const taskNum = i + 1;
 
-                          const taskCompleted = this.isExerciseCompleted(i, exerciseList);
-                          const taskCorrect = this.isExerciseCorrect(i, exerciseList);
+                      const taskCompleted = this.isExerciseCompleted(i, exerciseList);
+                      const taskCorrect = this.isExerciseCorrect(i, exerciseList);
 
-                          if (!taskCompleted) {
-                            return (
-                              <Task key={i}>{taskNum}</Task>
-                            );
-                          }
-
-                          if (taskCorrect) {
-                            return <CorrectTask key={i}>{taskNum}</CorrectTask>;
-                          }
-                          return <IncorrectTask key={i}>{taskNum}</IncorrectTask>;
-                        })
+                      if (!taskCompleted) {
+                        return <Task key={i}>{taskNum}</Task>;
                       }
-                    </Tasks>
-                  </ExerciseListHeader>
-                  <Sessions>
-                    {
-                      this.getSessionsForExerciseList(exerciseList).map((session) =>
-                        <Session key={session.id}>
-                          <SessionHeader>{format(session.startedAt, 'DD.MM.YYYY HH:mm')}</SessionHeader>
-                          {
-                            session.sessionTries.length === 0 && (
-                              <span>Ei suoritettuja yrityskertoja</span>
-                            )
-                          }
-                          {
-                            session.sessionTries.length > 0 && (
-                              <SessionResults>
-                                <tbody>
-                                  <tr>
-                                    <td>Onnistuneiden tehtävien lukumäärä</td>
-                                    <Result>{finishedExercises(session).length} / {exerciseList.exerciseAmount}</Result>
-                                  </tr>
-                                  <tr>
-                                    <td>Nopein suoritusaika</td>
-                                    <Result>{fastestExerciseTime(session)} sekuntia</Result>
-                                  </tr>
-                                  <tr>
-                                    <td>Hitain suoritusaika</td>
-                                    <Result>{slowestExerciseTime(session)} sekuntia</Result>
-                                  </tr>
-                                  <tr>
-                                    <td>Keskimääräinen suoritusaika</td>
-                                    <Result>{averageExerciseTime(session)} sekuntia</Result>
-                                  </tr>
-                                </tbody>
-                              </SessionResults>
-                            )
-                          }
-                        </Session>,
-                      )
-                    }
 
-                  </Sessions>
-                </ExerciseList>
-              );
-            })
-          }
+                      if (taskCorrect) {
+                        return <CorrectTask key={i}>{taskNum}</CorrectTask>;
+                      }
+                      return <IncorrectTask key={i}>{taskNum}</IncorrectTask>;
+                    })}
+                  </Tasks>
+                </ExerciseListHeader>
+                <Sessions>
+                  {this.getSessionsForExerciseList(exerciseList).map((session) => (
+                    <Session key={session.id}>
+                      <SessionHeader>
+                        {format(session.startedAt, 'DD.MM.YYYY HH:mm')}
+                      </SessionHeader>
+                      {session.sessionTries.length === 0 &&
+                        <span>Ei suoritettuja yrityskertoja</span>}
+                      {session.sessionTries.length > 0 &&
+                        <SessionResults>
+                          <tbody>
+                            <tr>
+                              <td>Onnistuneiden tehtävien lukumäärä</td>
+                              <Result>
+                                {finishedExercises(session).length}
+                                {' '}
+                                /
+                                {' '}
+                                {exerciseList.exerciseAmount}
+                              </Result>
+                            </tr>
+                            <tr>
+                              <td>Nopein suoritusaika</td>
+                              <Result>
+                                {fastestExerciseTime(session)} sekuntia
+                              </Result>
+                            </tr>
+                            <tr>
+                              <td>Hitain suoritusaika</td>
+                              <Result>
+                                {slowestExerciseTime(session)} sekuntia
+                              </Result>
+                            </tr>
+                            <tr>
+                              <td>Keskimääräinen suoritusaika</td>
+                              <Result>
+                                {averageExerciseTime(session)} sekuntia
+                              </Result>
+                            </tr>
+                          </tbody>
+                        </SessionResults>}
+                    </Session>
+                  ))}
+
+                </Sessions>
+              </ExerciseList>
+            );
+          })}
         </ExerciseLists>
       </div>
     );

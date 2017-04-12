@@ -1,18 +1,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import {
-  BrowserRouter,
-  HashRouter,
-  Route,
-  Link,
-} from 'react-router-dom';
+import { BrowserRouter, HashRouter, Route, Link } from 'react-router-dom';
 
-import {
-  getUser,
-  getUsers,
-  getExerciseLists,
-} from './state';
+import { getUser, getUsers, getExerciseLists } from './state';
 
 import HomeView from './modules/Home/View';
 import ExerciseListView from './modules/ExerciseList/View';
@@ -21,9 +12,7 @@ import UserView from './modules/User/View';
 import UserListView from './modules/User/ListView';
 import LoginModal from './modules/Login/Modal';
 
-const Router = process.env.NODE_ENV === 'production' ?
-  HashRouter :
-  BrowserRouter;
+const Router = process.env.NODE_ENV === 'production' ? HashRouter : BrowserRouter;
 
 const Container = styled.div`
   height: 100%;
@@ -66,8 +55,7 @@ const ToolsHeader = styled.div`
   font-weight: bold;
 `;
 
-const canViewUsers = (user) =>
-  ['teacher', 'admin'].indexOf(user.role) > -1;
+const canViewUsers = (user) => ['teacher', 'admin'].indexOf(user.role) > -1;
 
 class App extends Component {
   componentDidMount = () => {
@@ -77,7 +65,7 @@ class App extends Component {
     if (this.props.user && canViewUsers(this.props.user)) {
       this.props.getUsers();
     }
-  }
+  };
   componentWillReceiveProps(nextProps) {
     const userLoaded = !this.props.user && nextProps.user;
     if (userLoaded && canViewUsers(nextProps.user)) {
@@ -93,24 +81,21 @@ class App extends Component {
         <Container>
           <Sidebar>
             <ul>
-              {
-              this.props.exerciseLists.map((exerciseList) =>
+              {this.props.exerciseLists.map((exerciseList) => (
                 <li key={exerciseList.id}>
-                  <ExerciseList to={`/exercise-lists/${exerciseList.id}`}>{exerciseList.description}</ExerciseList>
-                </li>,
-              )
-            }
+                  <ExerciseList to={`/exercise-lists/${exerciseList.id}`}>
+                    {exerciseList.description}
+                  </ExerciseList>
+                </li>
+              ))}
             </ul>
-            {
-              canViewRaports && (
-                <Tools>
-                  <ToolsHeader>
-                    Opettajan työkalut:
-                  </ToolsHeader>
-                  <Link to="/users">Selaa käyttäjiä</Link>
-                </Tools>
-              )
-            }
+            {canViewRaports &&
+              <Tools>
+                <ToolsHeader>
+                  Opettajan työkalut:
+                </ToolsHeader>
+                <Link to="/users">Selaa käyttäjiä</Link>
+              </Tools>}
           </Sidebar>
           <Content>
             <UserDetailsContainer>

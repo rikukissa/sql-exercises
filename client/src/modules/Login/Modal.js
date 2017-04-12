@@ -34,23 +34,20 @@ const InputContainer = styled.div`
 class LoginModal extends Component {
   state = {
     studentNumber: '',
-  }
+  };
   storeStudentNumber = (event) => {
     const studentNumber = event.target.value;
     this.setState((state) => ({
       ...state,
       studentNumber,
     }));
-  }
+  };
   login = () => {
     this.props.login(this.state.studentNumber);
-  }
+  };
   render() {
     return (
-      <Modal
-        isOpen={this.props.visible}
-        contentLabel="Modal"
-      >
+      <Modal isOpen={this.props.visible} contentLabel="Modal">
         <Title>Kirjaudu sisään</Title>
         <label htmlFor="student-number">Opiskelijanumero:</label>
         <InputContainer>

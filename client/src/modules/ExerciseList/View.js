@@ -28,10 +28,10 @@ class ExerciseListView extends Component {
     currentExercise: null,
     currentExerciseStartedAt: null,
     error: null,
-  }
+  };
   componentDidMount = () => {
     this.getExerciseList(this.props.match.params.id);
-  }
+  };
   componentWillReceiveProps(nextProps) {
     const exerciseIdChanged = this.props.match.params.id !== nextProps.match.params.id;
     const justLoggedIn = !this.props.loggedIn && nextProps.loggedIn;
@@ -46,9 +46,8 @@ class ExerciseListView extends Component {
   }
   getExerciseList = (id) => {
     getExerciseList(id).then((exerciseList) =>
-      this.setState(() => ({ exerciseList, currentExercise: null }),
-    ));
-  }
+      this.setState(() => ({ exerciseList, currentExercise: null })));
+  };
   start = () => {
     const loggedIn = this.props.loggedIn;
 
@@ -57,18 +56,17 @@ class ExerciseListView extends Component {
       return;
     }
     this.startExercises();
-  }
+  };
   startExercises = async () => {
     await this.createSession();
     this.setState({
       currentExercise: this.state.exerciseList.exercises[0],
       currentExerciseStartedAt: new Date(),
     });
-  }
+  };
   toNextExercise = () => {
     const exercises = this.state.exerciseList.exercises;
-    const currentExerciseIndex =
-      exercises.indexOf(this.state.currentExercise);
+    const currentExerciseIndex = exercises.indexOf(this.state.currentExercise);
 
     if (currentExerciseIndex + 1 === exercises.length) {
       // TODO
@@ -82,12 +80,12 @@ class ExerciseListView extends Component {
       currentExercise: exercises[currentExerciseIndex + 1],
       currentExerciseStartedAt: new Date(),
     });
-  }
+  };
   createSession = () => {
     return createSession(this.state.exerciseList, this.props.token).then((session) => {
       this.setState({ session });
     });
-  }
+  };
 
   submitAnswer = (code) => {
     const {
@@ -97,38 +95,31 @@ class ExerciseListView extends Component {
       currentExerciseStartedAt,
     } = this.state;
 
-    submitAnswer(
-      code,
-      currentExercise,
-      session,
-      currentExerciseStartedAt,
-      this.props.token,
-    ).then(() =>
-      this.toNextExercise(),
-    ).catch((err) => {
-      if (currentTry === this.state.session.maxTries) {
-        this.toNextExercise();
-        return;
-      }
-      if (err.response.status === 400) {
-        this.setState(() => ({
-          error: err.response.data,
-        }));
-      } else {
-        this.setState(() => ({
-          error: {
-            type: 'unexpected',
-          },
-        }));
-      }
-    });
-
+    submitAnswer(code, currentExercise, session, currentExerciseStartedAt, this.props.token)
+      .then(() => this.toNextExercise())
+      .catch((err) => {
+        if (currentTry === this.state.session.maxTries) {
+          this.toNextExercise();
+          return;
+        }
+        if (err.response.status === 400) {
+          this.setState(() => ({
+            error: err.response.data,
+          }));
+        } else {
+          this.setState(() => ({
+            error: {
+              type: 'unexpected',
+            },
+          }));
+        }
+      });
 
     this.setState({
       error: null,
       currentTry: currentTry + 1,
     });
-  }
+  };
   render() {
     if (this.state.currentExercise) {
       const { exercises } = this.state.exerciseList;
@@ -138,7 +129,9 @@ class ExerciseListView extends Component {
             Tehtävä {exercises.indexOf(this.state.currentExercise) + 1} / {exercises.length}
           </ExerciseTitle>
           <CurrentTry>
-            Yrityksiä jäljellä: <strong>{this.state.session.maxTries - this.state.currentTry + 1}</strong>
+            Yrityksiä jäljellä:
+            {' '}
+            <strong>{this.state.session.maxTries - this.state.currentTry + 1}</strong>
           </CurrentTry>
           <Exercise
             error={this.state.error}

@@ -23,16 +23,14 @@ class UserWidget extends Component {
   render() {
     return (
       <div className={this.props.className}>
-        { this.props.user ? (
-          <div>
+        {this.props.user
+          ? <div>
             <Link to="/me">{this.props.user.name}</Link>
             <LogoutLink to="/" onClick={this.props.logout}>
-              (Kirjaudu ulos)
-            </LogoutLink>
+                (Kirjaudu ulos)
+              </LogoutLink>
           </div>
-        ) : (
-          <LoginLink onClick={this.props.login}>Kirjaudu sisään</LoginLink>
-        )}
+          : <LoginLink onClick={this.props.login}>Kirjaudu sisään</LoginLink>}
       </div>
     );
   }

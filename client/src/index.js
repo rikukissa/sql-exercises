@@ -11,8 +11,9 @@ import state from './state';
 // This is where all the application state is kept
 const store = createStore(state, applyMiddleware(thunk));
 
-ReactDOM.render((
+ReactDOM.render(
   <Provider store={store}>
     <App />
-  </Provider>
-), document.getElementById('root'));
+  </Provider>,
+  document.getElementById('root'),
+);

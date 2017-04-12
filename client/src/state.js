@@ -6,7 +6,6 @@ import {
   getUsers as fetchUsers,
 } from './service';
 
-
 const EXERCISE_LISTS_LOADED = 'EXERCISE_LISTS_LOADED';
 const LOGOUT = 'LOGOUT';
 const LOGIN_STARTED = 'LOGIN_STARTED';
@@ -17,14 +16,11 @@ const LOGGED_IN = 'LOGGED_IN';
 const SESSIONS_LOADED = 'SESSIONS_LOADED';
 const USERS_LOADED = 'USERS_LOADED';
 
-
 export function getUser() {
   return (dispatch, getState) => {
     const { token } = getState();
 
-    fetchUser(token).then((user) =>
-      dispatch({ type: LOGGED_IN, payload: user }),
-    );
+    fetchUser(token).then((user) => dispatch({ type: LOGGED_IN, payload: user }));
   };
 }
 
@@ -32,17 +28,13 @@ export function getUsers() {
   return (dispatch, getState) => {
     const { token } = getState();
 
-    fetchUsers(token).then((users) =>
-      dispatch({ type: USERS_LOADED, payload: users }),
-    );
+    fetchUsers(token).then((users) => dispatch({ type: USERS_LOADED, payload: users }));
   };
 }
 
 export function getExerciseLists() {
   return (dispatch) => {
-    fetchExerciseLists().then((lists) =>
-      dispatch({ type: EXERCISE_LISTS_LOADED, payload: lists }),
-    );
+    fetchExerciseLists().then((lists) => dispatch({ type: EXERCISE_LISTS_LOADED, payload: lists }));
   };
 }
 
