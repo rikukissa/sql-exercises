@@ -5,6 +5,7 @@ import org.sql2o.Connection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.sql2o.Sql2oException;
 import services.UserService.User;
@@ -50,7 +51,7 @@ public class SessionTryService {
     public boolean correct;
     public Date startedAt;
     public Date finishedAt;
-
+    public List<Map<String, Object>> result;
     public SessionTry(
       int exercise,
       int session,
@@ -154,13 +155,13 @@ public class SessionTryService {
         .executeAndFetchTable()
         .asList();
 
-      sessionTry.correct = correctAnswer.equals(userAnswerResult);
+      sessionTry.result = userAnswerResult;
+      sessionTry.correct = isEqualResult(correctAnswer, userAnswerResult);
     } catch (Sql2oException err) {
       sessionTry.correct = false;
       createSessionTry(sessionTry);
       throw new SQLError(err.getMessage());
     }
-    sessionTry.correct = true;
     return createSessionTry(sessionTry);
   }
 
@@ -174,10 +175,23 @@ public class SessionTryService {
         .bind(sessionTry)
         .executeUpdate()
         .getKey(int.class);
-      return SessionTryService.getSessionTryById(id);
+
+      SessionTry createdSessionTry = SessionTryService.getSessionTryById(id);
+      createdSessionTry.result = sessionTry.result;
+      return createdSessionTry;
     } catch (SessionTryNotFound err) {
       throw new SessionTryNotCreated();
     }
+  }
+  private static boolean isEqualResult(List<Map<String, Object>> resultA, List<Map<String, Object>> resultB) {
+
+    if(resultA.size() != resultB.size()) {
+      return false;
+    }
+
+    return IntStream.range(0, resultA.size()).allMatch(i ->
+      resultA.get(i).equals(resultB.get(i))
+    );
   }
   private static boolean isValidSyntax(String answer) {
     if(answer.charAt((answer.length() -1)) != ';') {

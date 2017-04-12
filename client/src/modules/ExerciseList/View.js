@@ -11,6 +11,11 @@ const StartButton = styled(Button)`
   width: 400px;
 `;
 
+const NextTaskButton = styled(Button)`
+  width: 100%;
+  margin-top: 1em;
+`;
+
 const ExerciseTitle = styled.h2`
   margin-bottom: 0;
 `;
@@ -25,6 +30,7 @@ class ExerciseListView extends Component {
     exerciseList: null,
     currentTry: 1,
     session: null,
+    result: [],
     currentExercise: null,
     currentExerciseStartedAt: null,
     error: null,
@@ -77,6 +83,8 @@ class ExerciseListView extends Component {
     this.setState({
       error: null,
       currentTry: 1,
+      correct: false,
+      result: [],
       currentExercise: exercises[currentExerciseIndex + 1],
       currentExerciseStartedAt: new Date(),
     });
@@ -95,13 +103,26 @@ class ExerciseListView extends Component {
       currentExerciseStartedAt,
     } = this.state;
 
+    this.setState({
+      error: null,
+      result: [],
+      currentTry: currentTry + 1,
+    });
+
     submitAnswer(code, currentExercise, session, currentExerciseStartedAt, this.props.token)
-      .then(() => this.toNextExercise())
-      .catch((err) => {
-        if (currentTry === this.state.session.maxTries) {
-          this.toNextExercise();
-          return;
+      .then(({ correct, result }) => {
+        if (!correct) {
+          this.setState(() => ({
+            result,
+            error: {
+              type: 'incorrect',
+            },
+          }));
+        } else {
+          this.setState(() => ({ result, correct: true }));
         }
+      })
+      .catch((err) => {
         if (err.response.status === 400) {
           this.setState(() => ({
             error: err.response.data,
@@ -114,15 +135,11 @@ class ExerciseListView extends Component {
           }));
         }
       });
-
-    this.setState({
-      error: null,
-      currentTry: currentTry + 1,
-    });
   };
   render() {
     if (this.state.currentExercise) {
       const { exercises } = this.state.exerciseList;
+      const triesExceeded = this.state.currentTry > this.state.session.maxTries;
       return (
         <div>
           <ExerciseTitle>
@@ -134,10 +151,15 @@ class ExerciseListView extends Component {
             <strong>{this.state.session.maxTries - this.state.currentTry + 1}</strong>
           </CurrentTry>
           <Exercise
+            disabled={triesExceeded}
             error={this.state.error}
+            result={this.state.result}
             exercise={this.state.currentExercise}
             onSubmit={this.submitAnswer}
           />
+
+          {triesExceeded &&
+            <NextTaskButton onClick={this.toNextExercise}>Seuraava tehtävä</NextTaskButton>}
         </div>
       );
     }

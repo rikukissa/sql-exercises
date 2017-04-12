@@ -4,7 +4,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/sql/sql';
 import 'codemirror/theme/blackboard.css';
 import styled from 'styled-components';
-
+import { keys } from 'lodash';
 import Button from './Button';
 
 const ExerciseContainer = styled.div`
@@ -34,7 +34,29 @@ const Task = styled.strong`
   font-weight: 700;
 `;
 
+const Results = styled.div`
+`;
+
+const ResultsHeader = styled.h3`
+`;
+
+const ResultsTable = styled.table`
+  width: 100%;
+  margin-bottom: 2em;
+`;
+
+const TableRow = styled.tr`
+  text-align: left;
+  &:nth-child(odd) {
+    background: #efefef;
+  }
+`;
+const TableHeader = styled.th`
+  text-align: left;
+`;
+
 const MESSAGES = {
+  incorrect: () => 'Väärä vastaus',
   unexpected: () => 'Jotain meni pieleen',
   sql: (message) => (
     <div>
@@ -83,7 +105,30 @@ export default class Exercise extends Component {
           onChange={this.updateCode}
           options={{ theme: 'blackboard', mode: 'text/x-pgsql' }}
         />
-        <SubmitButton disabled={this.state.code === ''} onClick={this.submit}>
+        {this.props.result.length > 0 &&
+          <Results>
+            <ResultsHeader>Kyselyn tulos:</ResultsHeader>
+            <ResultsTable>
+              <thead>
+                <tr>
+                  {keys(this.props.result[0]).map((key) => (
+                    <TableHeader key={key}>{key}</TableHeader>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {this.props.result.map((row, i) => (
+                  <TableRow key={i}>
+                    {keys(row).map((key) => <td key={key}>{row[key]}</td>)}
+                  </TableRow>
+                ))}
+              </tbody>
+            </ResultsTable>
+          </Results>}
+        <SubmitButton
+          disabled={this.props.disabled || this.state.code === ''}
+          onClick={this.submit}
+        >
           Lähetä vastaus
         </SubmitButton>
       </ExerciseContainer>
