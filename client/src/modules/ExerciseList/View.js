@@ -8,7 +8,7 @@ import Button from '../../components/Button';
 import { showLogin, getExampleAnswers, clearExampleAnswers } from '../../state';
 
 const ShowAnswerButton = styled(Button)`
-
+  margin-right: 1em;
 `;
 
 const ExceededAction = styled.div`
@@ -27,7 +27,6 @@ const StartButton = styled(Button)`
 
 const NextTaskButton = styled(Button)`
   width: 100%;
-  margin-left: 1em;
 `;
 
 const ExerciseTitle = styled.h2`
@@ -39,12 +38,18 @@ const CurrentTry = styled.span`
   color: #6d6d6d;
 `;
 
+const SuccessMessage = styled.div`
+  margin-bottom: 1em;
+  color: #3bbf9d;
+`;
+
 class ExerciseListView extends Component {
   state = {
     exerciseList: null,
     currentTry: 1,
     session: null,
     result: [],
+    correct: false,
     currentExercise: null,
     currentExerciseStartedAt: null,
     error: null,
@@ -173,9 +178,10 @@ class ExerciseListView extends Component {
             <strong>{this.state.session.maxTries - this.state.currentTry + 1}</strong>
           </CurrentTry>
           <Exercise
-            disabled={triesExceeded}
+            disabled={triesExceeded || this.state.correct}
             error={this.state.error}
             result={this.state.result}
+            correct={this.state.correct}
             exercise={this.state.currentExercise}
             onSubmit={this.submitAnswer}
           />
@@ -186,6 +192,12 @@ class ExerciseListView extends Component {
               <span>{answer}</span>
             </ExampleAnswer>
           ))}
+
+          {this.state.correct &&
+            <div>
+              <SuccessMessage>Oikea vastaus!</SuccessMessage>
+              <NextTaskButton onClick={this.toNextExercise}>Seuraava tehtävä</NextTaskButton>
+            </div>}
 
           {triesExceeded &&
             <ExceededAction>

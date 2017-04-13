@@ -125,12 +125,13 @@ export default class Exercise extends Component {
               </tbody>
             </ResultsTable>
           </Results>}
-        <SubmitButton
-          disabled={this.props.disabled || this.state.code === ''}
-          onClick={this.submit}
-        >
-          Lähetä vastaus
-        </SubmitButton>
+        {!this.props.correct &&
+          <SubmitButton
+            disabled={this.props.disabled || this.state.code === ''}
+            onClick={this.submit}
+          >
+            Lähetä vastaus
+          </SubmitButton>}
       </ExerciseContainer>
     );
   }
