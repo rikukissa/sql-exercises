@@ -19,6 +19,15 @@ public class ExerciseController {
       get("", (req, res) -> Response.ok(res, getExercises()));
 
       /*
+       *
+       */
+
+      get("/:id/example-answers", (req, res) -> {
+        int id = Integer.parseInt(req.params(":id"));
+        return Response.ok(res, getExerciseById(id).exampleAnswers);
+      });
+
+      /*
        * Create new exercise
        */
 
@@ -30,6 +39,14 @@ public class ExerciseController {
 
       exception(ExerciseNotCreated.class, (exception, request, response) ->
         Response.internalServerError(response)
+      );
+
+      exception(ExerciseNotFound.class, (exception, request, response) ->
+        Response.notFound(response)
+      );
+
+      exception(NumberFormatException.class, (exception, request, response) ->
+        Response.badRequest(response)
       );
     });
 

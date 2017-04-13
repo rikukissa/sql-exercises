@@ -5,7 +5,21 @@ import styled from 'styled-components';
 import { getExerciseList, createSession, submitAnswer } from '../../service';
 import Exercise from '../../components/Exercise';
 import Button from '../../components/Button';
-import { showLogin } from '../../state';
+import { showLogin, getExampleAnswers, clearExampleAnswers } from '../../state';
+
+const ShowAnswerButton = styled(Button)`
+
+`;
+
+const ExceededAction = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1em;
+`;
+
+const ExampleAnswer = styled.div`
+  margin: 1em 0;
+`;
 
 const StartButton = styled(Button)`
   width: 400px;
@@ -13,7 +27,7 @@ const StartButton = styled(Button)`
 
 const NextTaskButton = styled(Button)`
   width: 100%;
-  margin-top: 1em;
+  margin-left: 1em;
 `;
 
 const ExerciseTitle = styled.h2`
@@ -65,6 +79,7 @@ class ExerciseListView extends Component {
   };
   startExercises = async () => {
     await this.createSession();
+    this.props.clearExampleAnswers();
     this.setState({
       currentExercise: this.state.exerciseList.exercises[0],
       currentExerciseStartedAt: new Date(),
@@ -73,6 +88,8 @@ class ExerciseListView extends Component {
   toNextExercise = () => {
     const exercises = this.state.exerciseList.exercises;
     const currentExerciseIndex = exercises.indexOf(this.state.currentExercise);
+
+    this.props.clearExampleAnswers();
 
     if (currentExerciseIndex + 1 === exercises.length) {
       // TODO
@@ -136,7 +153,12 @@ class ExerciseListView extends Component {
         }
       });
   };
+  showAnswer = () => {
+    this.props.getExampleAnswers(this.state.currentExercise.id);
+  };
   render() {
+    const { exampleAnswers } = this.props;
+
     if (this.state.currentExercise) {
       const { exercises } = this.state.exerciseList;
       const triesExceeded = this.state.currentTry > this.state.session.maxTries;
@@ -158,8 +180,18 @@ class ExerciseListView extends Component {
             onSubmit={this.submitAnswer}
           />
 
+          {exampleAnswers.map((answer) => (
+            <ExampleAnswer key={answer}>
+              <strong>Esimerkkivastaus</strong><br />
+              <span>{answer}</span>
+            </ExampleAnswer>
+          ))}
+
           {triesExceeded &&
-            <NextTaskButton onClick={this.toNextExercise}>Seuraava tehtävä</NextTaskButton>}
+            <ExceededAction>
+              <ShowAnswerButton onClick={this.showAnswer}>Näytä oikea vastaus</ShowAnswerButton>
+              <NextTaskButton onClick={this.toNextExercise}>Seuraava tehtävä</NextTaskButton>
+            </ExceededAction>}
         </div>
       );
     }
@@ -176,8 +208,9 @@ class ExerciseListView extends Component {
   }
 }
 
-function mapStateToProps({ user, token }) {
+function mapStateToProps({ user, token, exampleAnswers }) {
   return {
+    exampleAnswers,
     loggedIn: user !== null,
     token,
   };
@@ -186,6 +219,8 @@ function mapStateToProps({ user, token }) {
 function mapDispatchToProps(dispatch) {
   return {
     showLogin: () => dispatch(showLogin()),
+    getExampleAnswers: (exerciseId) => dispatch(getExampleAnswers(exerciseId)),
+    clearExampleAnswers: () => dispatch(clearExampleAnswers()),
   };
 }
 

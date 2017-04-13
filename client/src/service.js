@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { camelCase, snakeCase } from 'change-case-object';
+import { isObject } from 'lodash';
 
 const ROOT = process.env.NODE_ENV === 'production'
   ? 'https://shrouded-bayou-72543.herokuapp.com'
@@ -10,7 +11,9 @@ const api = axios.create({
   transformResponse: [
     (data) => {
       const responseData = JSON.parse(data);
-      return Array.isArray(responseData) ? responseData.map(camelCase) : camelCase(responseData);
+      return Array.isArray(responseData)
+        ? responseData.map((item) => isObject(item) ? camelCase(item) : item)
+        : camelCase(responseData);
     },
   ],
 });
@@ -51,6 +54,10 @@ export function getSessions(userId, token) {
 
 export function getExerciseList(id) {
   return api.get(`${ROOT}/exercise-lists/${id}`).then(({ data }) => data);
+}
+
+export function getExampleAnswers(id) {
+  return api.get(`${ROOT}/exercises/${id}/example-answers`).then(({ data }) => data);
 }
 
 export function login(studentNumber) {

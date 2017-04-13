@@ -4,6 +4,7 @@ import {
   login as doLogin,
   getSessions as fetchSessions,
   getUsers as fetchUsers,
+  getExampleAnswers as fetchExampleAnswers,
 } from './service';
 
 const EXERCISE_LISTS_LOADED = 'EXERCISE_LISTS_LOADED';
@@ -15,6 +16,8 @@ const LOGIN_FAILED = 'LOGIN_FAILED';
 const LOGGED_IN = 'LOGGED_IN';
 const SESSIONS_LOADED = 'SESSIONS_LOADED';
 const USERS_LOADED = 'USERS_LOADED';
+const EXAMPLE_ANSWERS_LOADED = 'EXAMPLE_ANSWERS_LOADED';
+const CLEAR_EXAMPLE_ANSWERS = 'CLEAR_EXAMPLE_ANSWERS';
 
 export function getUser() {
   return (dispatch, getState) => {
@@ -46,6 +49,20 @@ export function getSessions(userId) {
   };
 }
 
+export function getExampleAnswers(exerciseId) {
+  return async (dispatch) => {
+    const answers = await fetchExampleAnswers(exerciseId);
+    dispatch({
+      type: EXAMPLE_ANSWERS_LOADED,
+      payload: answers,
+    });
+  };
+}
+
+export function clearExampleAnswers() {
+  return { type: CLEAR_EXAMPLE_ANSWERS };
+}
+
 export function logout() {
   return { type: LOGOUT };
 }
@@ -75,6 +92,7 @@ const INITIAL_STATE = {
   exerciseLists: [],
   sessions: [],
   loginVisible: false,
+  exampleAnswers: [],
 };
 
 export default function (state = INITIAL_STATE, action) {
@@ -107,6 +125,12 @@ export default function (state = INITIAL_STATE, action) {
     }
     case USERS_LOADED: {
       return { ...state, users: action.payload };
+    }
+    case EXAMPLE_ANSWERS_LOADED: {
+      return { ...state, exampleAnswers: action.payload };
+    }
+    case CLEAR_EXAMPLE_ANSWERS: {
+      return { ...state, exampleAnswers: [] };
     }
     default: {
       return state;
