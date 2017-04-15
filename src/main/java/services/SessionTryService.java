@@ -2,6 +2,7 @@ package services;
 
 import org.sql2o.Connection;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -143,8 +144,8 @@ public class SessionTryService {
     }
 
     Exercise exercise = getExerciseById(sessionTry.exercise);
-
     try(Connection con = DatabaseService.getConnection()) {
+      con.getJdbcConnection().setSchema("sandbox");
       List<Map<String,Object>> correctAnswer = con
         .createQuery(exercise.exampleAnswers.get(0))
         .executeAndFetchTable()
@@ -161,7 +162,12 @@ public class SessionTryService {
       sessionTry.correct = false;
       createSessionTry(sessionTry);
       throw new SQLError(err.getMessage());
+    } catch (SQLException err) {
+      sessionTry.correct = false;
+      createSessionTry(sessionTry);
+      throw new SQLError(err.getMessage());
     }
+
     return createSessionTry(sessionTry);
   }
 
