@@ -46,7 +46,7 @@ public class ExerciseController {
         ExampleAnswer exampleAnswer = Request.getBodyAs(req.body(), ExampleAnswer.class);
         int id = Integer.parseInt(req.params(":id"));
         exampleAnswer.exercise = id;
-        
+        return Response.created(res, createExampleAnswer(exampleAnswer));
       });
 
       exception(ExerciseNotCreated.class, (exception, request, response) ->

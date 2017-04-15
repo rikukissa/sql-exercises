@@ -117,5 +117,18 @@ public class ExerciseService {
       }
     }
   }
+
+  public static ExampleAnswer createExampleAnswer(ExampleAnswer exampleAnswer) {
+    String sql = "INSERT INTO example_answer (exercise, answer) values (:exercise, :answer)";
+    try(Connection con = DatabaseService.getConnection()) {
+      con
+        .createQuery(sql)
+        .bind(exampleAnswer)
+        .executeUpdate();
+
+
+    }
+    return exampleAnswer;
+  }
 }
 
