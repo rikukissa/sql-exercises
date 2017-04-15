@@ -10,7 +10,8 @@ CREATE TABLE exercise_list (
   id SERIAL PRIMARY KEY NOT NULL,
   description TEXT NOT NULL,
   exercise_amount int NOT NULL DEFAULT 0,
-  created_at timestamp NOT NULL default now()
+  created_at timestamp NOT NULL default now(),
+  creator int NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
 );
 
 CREATE TABLE exercise (
@@ -18,7 +19,7 @@ CREATE TABLE exercise (
   description TEXT NOT NULL,
   type TEXT NOT NULL,
   creator int NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-  created_at timestamp NOT NULL default now()
+  created_at timestamp default now()
 );
 
 CREATE TABLE example_answer (

@@ -4,6 +4,9 @@ import static spark.Spark.*;
 
 import controllers.utils.Request;
 import controllers.utils.Response;
+import services.UserService;
+
+import java.util.Arrays;
 
 import static services.ExerciseService.*;
 
@@ -30,11 +33,20 @@ public class ExerciseController {
       /*
        * Create new exercise
        */
-
+      before("", Request::requiresAuthentication);
       post("",  (req, res) -> {
+        Request.requiresRole(req, res, Arrays.asList(UserService.User.TEACHER, UserService.User.ADMIN));
         Exercise exercise = Request.getBodyAs(req.body(), Exercise.class);
+        exercise.creator = Request.getUserId(req);
         Exercise createdExercise = createExercise(exercise);
         return Response.created(res, createdExercise);
+      });
+      post("/:id/example-answers", (req, res) -> {
+        Request.requiresRole(req, res, Arrays.asList(UserService.User.TEACHER, UserService.User.ADMIN));
+        ExampleAnswer exampleAnswer = Request.getBodyAs(req.body(), ExampleAnswer.class);
+        int id = Integer.parseInt(req.params(":id"));
+        exampleAnswer.exercise = id;
+        
       });
 
       exception(ExerciseNotCreated.class, (exception, request, response) ->

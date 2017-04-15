@@ -30,7 +30,7 @@ INSERT INTO suoritukset VALUES(3, 1, 5);
 INSERT INTO suoritukset VALUES(3, 2, 4);
 
 -- Perusharjoitukset
-INSERT INTO exercise_list (id, description) VALUES (0, 'Perusharjoitukset');
+INSERT INTO exercise_list (id, description, creator) VALUES (0, 'Perusharjoitukset', 0);
 
 -- Perusharjoitukset 1
 INSERT INTO exercise (id, description, type, creator) VALUES (
@@ -72,7 +72,7 @@ INSERT INTO exercise_list_exercise (exercise, exercise_list) VALUES (1, 0);
 INSERT INTO exercise_list_exercise (exercise, exercise_list) VALUES (2, 0);
 
 -- Haastavat harjoitukset
-INSERT INTO exercise_list (id, description) VALUES (1, 'Haastavat harjoitukset');
+INSERT INTO exercise_list (id, description, creator) VALUES (1, 'Haastavat harjoitukset', 0);
 
 -- Haastavat harjoitukset 1
 INSERT INTO exercise (id, description, type, creator) VALUES (

@@ -5,6 +5,7 @@ import org.sql2o.Connection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.sql2o.Sql2oException;
 
 import static services.ExerciseService.*;
 
@@ -23,6 +24,7 @@ public class ExerciseListService {
     public int exerciseAmount;
     public Date createdAt;
     public List<Exercise> exercises;
+    public int creator;
 
     public ExerciseList(String description) {
       this.description = description;
@@ -90,7 +92,7 @@ public class ExerciseListService {
   }
 
   public static ExerciseList createExerciseList(ExerciseList exercise) throws ExerciseListNotCreated {
-    String sql = "INSERT INTO exercise_list (description) values (:description)";
+    String sql = "INSERT INTO exercise_list (description, creator) values (:description, :creator)";
 
     try(Connection con = DatabaseService.getConnection()) {
       int id = con
@@ -103,6 +105,20 @@ public class ExerciseListService {
     } catch (ExerciseListNotFound err) {
       throw new ExerciseListNotCreated();
     }
+  }
+
+  public static ExerciseList addExerciseToExerciseList(Exercise exercise, ExerciseList exerciseList) throws Sql2oException {
+    String sql = "INSERT INTO exercise_list_exercise (exercise, exercise_list) values (:exercise, :exercise_list)";
+    try(Connection con = DatabaseService.getConnection()) {
+      con
+        .createQuery(sql)
+        .addParameter("exercise", exercise.id)
+        .addParameter("exercise_list", exerciseList.id)
+        .executeUpdate();
+    }
+    List<Exercise> exercises = getExerciseListExercisesById(exerciseList.id);
+    exerciseList.setExercises(exercises);
+    return exerciseList;
   }
 }
 

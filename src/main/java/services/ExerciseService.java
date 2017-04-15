@@ -18,7 +18,7 @@ public class ExerciseService {
     }
   }
 
-  private static class ExampleAnswer {
+  public static class ExampleAnswer {
     public int exercise;
     public String answer;
   }
