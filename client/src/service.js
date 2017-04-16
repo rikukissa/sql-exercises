@@ -159,3 +159,19 @@ export function submitAnswer(code, exercise, session, startedAt, token) {
     )
     .then(({ data }) => data);
 }
+
+export function getExerciseListReport(exerciseListId) {
+  return `${ROOT}/exercise-lists/${exerciseListId}/report`;
+}
+
+export function getExerciseReport() {
+  return `${ROOT}/exercises/report`;
+}
+
+export function getExerciseTypeReport() {
+  return `${ROOT}/exercises/report-by-type`;
+}
+
+export function getUsersReport() {
+  return `${ROOT}/users/report`;
+}

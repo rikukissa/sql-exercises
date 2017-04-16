@@ -93,6 +93,24 @@ public class ExerciseService {
     }
   }
 
+  public static List<Map<String,Object>> getExerciseByTypeReport() throws IOException {
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+    List<String> lines = Files.readAllLines(
+      Paths.get(classLoader.getResource("reports/3.sql").getPath()),
+      StandardCharsets.UTF_8
+    );
+    String sql = String.join("\n", lines);
+
+    try(Connection con = DatabaseService.getConnection()) {
+      List<Map<String,Object>> report = con
+        .createQuery(sql)
+        .executeAndFetchTable()
+        .asList();
+      return report;
+    }
+  }
+
   public static Exercise getExerciseById(int id) throws ExerciseNotFound {
     String sql = "SELECT * FROM exercise where id = :id";
 

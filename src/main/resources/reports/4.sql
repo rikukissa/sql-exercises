@@ -16,4 +16,4 @@ WITH
       GROUP by "user".id
     )
       
-  SELECT sum(COALESCE(finished_exercises, 0)) / count(*), "user".field FROM data FULL OUTER JOIN "user" ON "user".id = data.id GROUP by "user".field;
+  SELECT sum(COALESCE(finished_exercises, 0)) / count(*) as success_rate, "user".field FROM data FULL OUTER JOIN "user" ON "user".id = data.id GROUP by "user".field;

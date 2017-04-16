@@ -50,8 +50,13 @@ public class UserController {
 
     path("/users", () -> {
 
+      /*
+       * User report
+       */
+
+      get("/report", (req, res) -> Response.csvOk(res, getUserReport()));
+
       before("", Request::requiresAuthentication);
-      before("/*", Request::requiresAuthentication);
 
       /*
       * Get all users
@@ -67,9 +72,24 @@ public class UserController {
       });
 
       /*
+       * Create new user
+       */
+
+      post("",  (req, res) -> {
+        User session = Request.getBodyAs(req.body(), User.class);
+        User createdUser = createUser(session);
+        return Response.created(res, createdUser);
+      });
+
+      exception(UserNotCreated.class, (exception, request, response) ->
+              Response.internalServerError(response)
+      );
+
+      /*
       * Get currently logged in user
       */
 
+      before("/me", Request::requiresAuthentication);
       get("/me", (req, res) -> {
         String studentNumber = Request.getStudentNumber(req);
         return Response.ok(res, getUserByStudentNumber(studentNumber));
@@ -79,7 +99,9 @@ public class UserController {
       * Get specific user
       */
 
+
       get("/:id", (req, res) -> {
+        Request.requiresAuthentication(req, res);
         int id = Integer.parseInt(req.params(":id"));
         return Response.ok(res, getUserById(id));
       });
@@ -92,19 +114,6 @@ public class UserController {
         Response.notFound(response)
       );
 
-      /*
-      * Create new user
-      */
-
-      post("",  (req, res) -> {
-        User session = Request.getBodyAs(req.body(), User.class);
-        User createdUser = createUser(session);
-        return Response.created(res, createdUser);
-      });
-
-      exception(UserNotCreated.class, (exception, request, response) ->
-        Response.internalServerError(response)
-      );
     });
   }
 }

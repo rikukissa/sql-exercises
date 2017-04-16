@@ -6,6 +6,8 @@ import { getExerciseList, createSession, submitAnswer } from '../../service';
 import Exercise from '../../components/Exercise';
 import Button from '../../components/Button';
 import { showLogin, getExampleAnswers, clearExampleAnswers } from '../../state';
+import { getExerciseListReport } from '../../service';
+import Report from '../../components/Report';
 
 const ShowAnswerButton = styled(Button)`
   margin-right: 1em;
@@ -71,7 +73,8 @@ class ExerciseListView extends Component {
   }
   getExerciseList = (id) => {
     getExerciseList(id).then((exerciseList) =>
-      this.setState(() => ({ exerciseList, currentExercise: null })));
+      this.setState(() => ({ exerciseList, currentExercise: null })),
+    );
   };
   start = () => {
     const loggedIn = this.props.loggedIn;
@@ -118,12 +121,7 @@ class ExerciseListView extends Component {
   };
 
   submitAnswer = (code) => {
-    const {
-      currentTry,
-      currentExercise,
-      session,
-      currentExerciseStartedAt,
-    } = this.state;
+    const { currentTry, currentExercise, session, currentExerciseStartedAt } = this.state;
 
     this.setState({
       error: null,
@@ -215,6 +213,13 @@ class ExerciseListView extends Component {
         </p>
 
         <StartButton onClick={this.start}>Aloita harjoitukset</StartButton>
+        <br />
+        <br />
+        {this.state.exerciseList &&
+          <Report href={getExerciseListReport(this.state.exerciseList.id)}>
+            <strong>Raportti 3:</strong> Testisarjan yhteenvetotiedot tehtäväkohtaisesti
+          </Report>}
+
       </div>
     );
   }
@@ -224,6 +229,7 @@ function mapStateToProps({ user, token, exampleAnswers }) {
   return {
     exampleAnswers,
     loggedIn: user !== null,
+    user,
     token,
   };
 }

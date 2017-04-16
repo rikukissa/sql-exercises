@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { Field, FieldArray, reduxForm } from 'redux-form';
 import { getExercises, createExerciseList, createExercise } from '../../state';
+import Report from '../../components/Report';
+import { getExerciseTypeReport, getExerciseReport } from '../../service';
 
 const Container = styled.div`
   display: flex;
@@ -137,6 +139,11 @@ class ExerciseEditor extends Component {
                 </div>
               );
             })}
+            <br />
+            <Report href={getExerciseTypeReport()}>
+              <strong>Raportti 5:</strong><br />
+              Tehtävät kyselytyypeittäin, yritysten keskimääräinen lukumäärä sekä keskimäärin käytetty aika.
+            </Report><br />
           </Column>
           <Column>
             <h2>Tehtävälistat</h2>
@@ -147,6 +154,11 @@ class ExerciseEditor extends Component {
                 </div>
               );
             })}
+            <br />
+            <Report href={getExerciseReport()}>
+              <strong>Raportti 4:</strong><br />
+              Tehtävät vaikeusjärjestyksessä
+            </Report><br />
           </Column>
         </Container>
       </div>

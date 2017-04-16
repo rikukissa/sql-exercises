@@ -20,5 +20,5 @@ WITH
       example_answer ON avg_tries.exercise = example_answer.exercise
     )
 
-  SELECT avg(average_duration) as average_duration, avg(average_tries) as average_tries, type FROM data GROUP BY type;
+  SELECT EXTRACT(epoch FROM avg(average_duration)) as average_duration, avg(average_tries) as average_tries, type FROM data GROUP BY type;
 
