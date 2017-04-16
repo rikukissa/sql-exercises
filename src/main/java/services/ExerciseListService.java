@@ -2,8 +2,15 @@ package services;
 
 import org.sql2o.Connection;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.sql2o.Sql2oException;
 
@@ -88,6 +95,25 @@ public class ExerciseListService {
       exerciseList.setExercises(exercises);
 
       return exerciseList;
+    }
+  }
+
+  public static List<Map<String,Object>> getExerciseReport(int id) throws IOException {
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+    List<String> lines = Files.readAllLines(
+      Paths.get(classLoader.getResource("reports/1.sql").getPath()),
+      StandardCharsets.UTF_8
+    );
+    String sql = String.join("\n", lines);
+
+    try(Connection con = DatabaseService.getConnection()) {
+      List<Map<String,Object>> report = con
+        .createQuery(sql)
+        .addParameter("exercise_list", id)
+        .executeAndFetchTable()
+        .asList();
+      return report;
     }
   }
 

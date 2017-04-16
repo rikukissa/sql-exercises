@@ -45,6 +45,11 @@ public class ExerciseListController {
         return Response.ok(res, getExerciseListById(id));
       });
 
+      get("/:id/report", (req, res) -> {
+        int id = Integer.parseInt(req.params(":id"));
+        return Response.csvOk(res, getExerciseReport(id));
+      });
+
       get("/:id/exercises", (req, res) -> {
         int id = Integer.parseInt(req.params(":id"));
         return Response.ok(res, getExerciseListExercisesById(id));

@@ -2,8 +2,13 @@ package services;
 
 import org.sql2o.Connection;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ExerciseService {
@@ -67,6 +72,24 @@ public class ExerciseService {
         .executeAndFetch(Exercise.class);
 
       return exercises;
+    }
+  }
+
+  public static List<Map<String,Object>> getExerciseReport() throws IOException {
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+    List<String> lines = Files.readAllLines(
+      Paths.get(classLoader.getResource("reports/2.sql").getPath()),
+      StandardCharsets.UTF_8
+    );
+    String sql = String.join("\n", lines);
+
+    try(Connection con = DatabaseService.getConnection()) {
+      List<Map<String,Object>> report = con
+        .createQuery(sql)
+        .executeAndFetchTable()
+        .asList();
+      return report;
     }
   }
 

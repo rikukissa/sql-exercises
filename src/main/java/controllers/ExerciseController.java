@@ -22,6 +22,12 @@ public class ExerciseController {
       get("", (req, res) -> Response.ok(res, getExercises()));
 
       /*
+       * Get exercise report (Report 4.)
+       */
+
+      get("/report", (req, res) -> Response.csvOk(res, getExerciseReport()));
+
+      /*
        *
        */
 
