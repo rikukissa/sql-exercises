@@ -12,7 +12,7 @@ const api = axios.create({
     (data) => {
       const responseData = JSON.parse(data);
       return Array.isArray(responseData)
-        ? responseData.map((item) => isObject(item) ? camelCase(item) : item)
+        ? responseData.map((item) => (isObject(item) ? camelCase(item) : item))
         : camelCase(responseData);
     },
   ],
@@ -42,6 +42,16 @@ export function getUsers(token) {
     .then(({ data }) => data);
 }
 
+export function getExercises(token) {
+  return api
+    .get(`${ROOT}/exercises`, {
+      headers: {
+        Authorization: token,
+      },
+    })
+    .then(({ data }) => data);
+}
+
 export function getSessions(userId, token) {
   return api
     .get(`${ROOT}/sessions?user=${userId}`, {
@@ -62,6 +72,55 @@ export function getExampleAnswers(id) {
 
 export function login(studentNumber) {
   return api.post(`${ROOT}/login`, { studentNumber }).then(({ data }) => data);
+}
+
+export function createExerciseList(exerciseList, token) {
+  return api
+    .post(`${ROOT}/exercise-lists`, exerciseList, {
+      headers: {
+        Authorization: token,
+      },
+    })
+    .then(({ data }) => data);
+}
+
+export function createExercise(exercise, token) {
+  return api
+    .post(`${ROOT}/exercises`, exercise, {
+      headers: {
+        Authorization: token,
+      },
+    })
+    .then(({ data }) => data);
+}
+export function addExampleAnswerToExercise(exerciseId, answer, token) {
+  return api
+    .post(
+      `${ROOT}/exercises/${exerciseId}/example-answers`,
+      { answer },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+    )
+    .then(({ data }) => data);
+}
+
+export function addExerciseToExerciseList(exerciseListId, exerciseId, token) {
+  return api
+    .post(
+      `${ROOT}/exercise-lists/${exerciseListId}/exercises`,
+    {
+      id: exerciseId,
+    },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+    )
+    .then(({ data }) => data);
 }
 
 export function createSession(exerciseList, token) {

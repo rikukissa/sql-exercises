@@ -1,3 +1,5 @@
+import { reducer as formReducer } from 'redux-form';
+import { keys } from 'lodash';
 import {
   getExerciseLists as fetchExerciseLists,
   getUser as fetchUser,
@@ -5,6 +7,11 @@ import {
   getSessions as fetchSessions,
   getUsers as fetchUsers,
   getExampleAnswers as fetchExampleAnswers,
+  getExercises as fetchExercises,
+  createExerciseList as createExerciseListRequest,
+  createExercise as createExerciseRequest,
+  addExerciseToExerciseList as addExerciseToExerciseListRequest,
+  addExampleAnswerToExercise as addExampleAnswerToExerciseRequest,
 } from './service';
 
 const EXERCISE_LISTS_LOADED = 'EXERCISE_LISTS_LOADED';
@@ -18,6 +25,36 @@ const SESSIONS_LOADED = 'SESSIONS_LOADED';
 const USERS_LOADED = 'USERS_LOADED';
 const EXAMPLE_ANSWERS_LOADED = 'EXAMPLE_ANSWERS_LOADED';
 const CLEAR_EXAMPLE_ANSWERS = 'CLEAR_EXAMPLE_ANSWERS';
+const EXERCISES_LOADED = 'EXERCISES_LOADED';
+const EXERCISE_LIST_CREATED = 'EXERCISE_LIST_CREATED';
+const EXERCISE_CREATED = 'EXERCISE_CREATED';
+
+export function createExercise() {
+  return async (dispatch, getState) => {
+    const { token, form } = getState();
+    const values = form.exercise.values;
+    const exercise = await createExerciseRequest(form.exercise.values, token);
+    await addExampleAnswerToExerciseRequest(exercise.id, values.answer, token);
+    dispatch({ type: EXERCISE_CREATED, payload: exercise });
+  };
+}
+
+export function createExerciseList() {
+  return async (dispatch, getState) => {
+    const { token, form } = getState();
+    const values = form.exerciseList.values;
+
+    let exerciseList = await createExerciseListRequest(values, token);
+
+    for (const exerciseId of keys(values.exercise)) {
+      if (values.exercise[exerciseId]) {
+        exerciseList = await addExerciseToExerciseListRequest(exerciseList.id, exerciseId, token);
+      }
+    }
+
+    dispatch({ type: EXERCISE_LIST_CREATED, payload: exerciseList });
+  };
+}
 
 export function getUser() {
   return (dispatch, getState) => {
@@ -32,6 +69,16 @@ export function getUsers() {
     const { token } = getState();
 
     fetchUsers(token).then((users) => dispatch({ type: USERS_LOADED, payload: users }));
+  };
+}
+
+export function getExercises() {
+  return (dispatch, getState) => {
+    const { token } = getState();
+
+    fetchExercises(token).then((exercises) =>
+      dispatch({ type: EXERCISES_LOADED, payload: exercises }),
+    );
   };
 }
 
@@ -93,12 +140,22 @@ const INITIAL_STATE = {
   sessions: [],
   loginVisible: false,
   exampleAnswers: [],
+  exercises: [],
 };
 
-export default function (state = INITIAL_STATE, action) {
+function reducer(state = INITIAL_STATE, action) {
   switch (action.type) {
+    case EXERCISE_CREATED: {
+      return { ...state, exercises: state.exercises.concat(action.payload) };
+    }
+    case EXERCISE_LIST_CREATED: {
+      return { ...state, exerciseLists: state.exerciseLists.concat(action.payload) };
+    }
     case EXERCISE_LISTS_LOADED: {
       return { ...state, exerciseLists: action.payload };
+    }
+    case EXERCISES_LOADED: {
+      return { ...state, exercises: action.payload };
     }
     case LOGGED_IN: {
       return { ...state, user: action.payload, loggingIn: false };
@@ -136,4 +193,12 @@ export default function (state = INITIAL_STATE, action) {
       return state;
     }
   }
+}
+
+export default function (state, action) {
+  const newState = reducer(state, action);
+  return {
+    ...newState,
+    form: formReducer(newState.form, action),
+  };
 }

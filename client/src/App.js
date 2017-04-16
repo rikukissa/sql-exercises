@@ -11,6 +11,7 @@ import UserWidget from './modules/User/Widget';
 import UserView from './modules/User/View';
 import UserListView from './modules/User/ListView';
 import LoginModal from './modules/Login/Modal';
+import ExerciseEditor from './modules/ExerciseEditor/View';
 
 const Router = process.env.NODE_ENV === 'production' ? HashRouter : BrowserRouter;
 
@@ -94,7 +95,8 @@ class App extends Component {
                 <ToolsHeader>
                   Opettajan työkalut:
                 </ToolsHeader>
-                <Link to="/users">Selaa käyttäjiä</Link>
+                <Link to="/users">Selaa käyttäjiä</Link><br />
+                <Link to="/exercise-editor">Tehtäväeditori</Link>
               </Tools>}
           </Sidebar>
           <Content>
@@ -106,6 +108,7 @@ class App extends Component {
             <Route path="/me" component={UserView} />
             <Route exact path="/users" component={UserListView} />
             <Route path="/users/:id" component={UserView} />
+            <Route exact path="/exercise-editor" component={ExerciseEditor} />
           </Content>
           <LoginModal />
         </Container>
@@ -121,6 +124,7 @@ function mapStateToProps(state) {
     exerciseLists: state.exerciseLists,
   };
 }
+
 function mapDispatchToProps(dispatch) {
   return {
     getUser: () => dispatch(getUser()),
@@ -129,4 +133,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(App);
