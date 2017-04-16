@@ -1,6 +1,8 @@
 
 -- Administrators
 INSERT INTO "user" (id, name, role, student_number, field) VALUES (0, 'Opettaja', 'teacher', '12345', 'TKT');
+SELECT setval('user_id_seq', 1, false);
+
 INSERT INTO "user" (name, student_number, field, role) VALUES ('Admin', '00000', 'TKT', 'admin');
 
 -- Students
@@ -31,6 +33,7 @@ INSERT INTO suoritukset VALUES(3, 2, 4);
 
 -- Perusharjoitukset
 INSERT INTO exercise_list (id, description, creator) VALUES (0, 'Perusharjoitukset', 0);
+SELECT setval('exercise_list_id_seq', 1);
 
 -- Perusharjoitukset 1
 INSERT INTO exercise (id, description, type, creator) VALUES (
@@ -73,6 +76,7 @@ INSERT INTO exercise_list_exercise (exercise, exercise_list) VALUES (2, 0);
 
 -- Haastavat harjoitukset
 INSERT INTO exercise_list (id, description, creator) VALUES (1, 'Haastavat harjoitukset', 0);
+SELECT setval('exercise_list_id_seq', 2);
 
 -- Haastavat harjoitukset 1
 INSERT INTO exercise (id, description, type, creator) VALUES (
@@ -94,6 +98,8 @@ INSERT INTO exercise (id, description, type, creator) VALUES (
   'medium',
   0
 );
+
+SELECT setval('exercise_id_seq', 5);
 
 INSERT INTO example_answer (exercise, answer) VALUES (
   4,
