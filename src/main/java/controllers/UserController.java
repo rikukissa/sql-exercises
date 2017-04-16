@@ -59,6 +59,10 @@ public class UserController {
 
       get("", (req, res) -> {
         Request.requiresRole(req, res, Arrays.asList(User.TEACHER, User.ADMIN));
+        if(Request.getRole(req).equals(User.TEACHER)) {
+          return Response.ok(res, getUsersWithSessionsForCreator(Request.getUserId(req)));
+        }
+
         return Response.ok(res, getUsers());
       });
 

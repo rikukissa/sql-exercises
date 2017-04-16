@@ -67,6 +67,24 @@ public class SessionService {
     }
   }
 
+  public static List<Session> getSessionsByUserForCreator(int id, int creatorId) throws SessionNotFound {
+    String sql = "SELECT \"session\".* FROM exercise_list RIGHT JOIN session ON exercise_list.id = session.exercise_list WHERE exercise_list.creator = :creator AND session.\"user\" = :user;";
+
+    try(Connection con = DatabaseService.getConnection()) {
+      List<Session> sessions = con
+        .createQuery(sql)
+        .addParameter("user", id)
+        .addParameter("creator", creatorId)
+        .addColumnMapping("started_at", "startedAt")
+        .addColumnMapping("finished_at", "finishedAt")
+        .addColumnMapping("exercise_list", "exerciseList")
+        .addColumnMapping("max_tries", "maxTries")
+        .executeAndFetch(Session.class);
+
+      return sessions;
+    }
+  }
+
   public static Session createSession(Session session) throws SessionNotCreated {
     String sql = "INSERT INTO session (\"user\", exercise_list, started_at) " +
             "values (:user, :exerciseList, :startedAt)";

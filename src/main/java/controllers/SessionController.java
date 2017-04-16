@@ -29,15 +29,23 @@ public class SessionController {
       get("", (req, res) -> {
         int id = Integer.parseInt(req.queryParams("user"));
 
+        String userRole = Request.getRole(req);
+
         boolean isOwner =
           Request.getUserId(req) == id ||
-          !Request.hasOneOfRoles(req, Arrays.asList(User.TEACHER, User.ADMIN));
+          Request.hasOneOfRoles(req, Arrays.asList(User.TEACHER, User.ADMIN));
 
         if(!isOwner) {
           return Response.unauthorized(res);
         }
 
-        List<Session> sessions = getSessionsByUser(id);
+        List<Session> sessions;
+
+        if(Request.getUserId(req) != id && userRole.equals(User.TEACHER)) {
+          sessions = getSessionsByUserForCreator(id, Request.getUserId(req));
+        } else {
+          sessions = getSessionsByUser(id);
+        }
 
         List<Session> response = sessions.stream().map(session -> {
           session.populateSessionTries(getSessionTriesBySession(session.id));
