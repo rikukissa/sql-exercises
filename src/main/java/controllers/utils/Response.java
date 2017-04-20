@@ -129,6 +129,11 @@ public class Response  {
     return body;
   }
 
+  public static String ok(spark.Response res) {
+    res.status(200);
+    return "";
+  }
+
   public static String csvOk(spark.Response res, List<Map<String,Object>> result) throws IOException {
     res.type("text/csv");
     String body = toCSV(result);

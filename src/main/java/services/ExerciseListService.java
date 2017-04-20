@@ -146,5 +146,27 @@ public class ExerciseListService {
     exerciseList.setExercises(exercises);
     return exerciseList;
   }
+
+  public static ExerciseList modifyExerciseList(ExerciseList exerciseList, int elId) {
+    String sql = "UPDATE exercise_list SET description = :description WHERE id = :id";
+    try(Connection con = DatabaseService.getConnection()) {
+      con
+        .createQuery(sql)
+        .addParameter("id", elId)
+        .addParameter("description", exerciseList.description)
+        .executeUpdate();
+    }
+    return exerciseList;
+  }
+
+  public static void deleteExerciseList(ExerciseList exerciseList, int elId) {
+    String sql = "DELETE FROM exercise_list WHERE id = :id";
+    try(Connection con = DatabaseService.getConnection()) {
+      con
+        .createQuery(sql)
+        .addParameter("id", elId)
+        .executeUpdate();
+    }
+  }
 }
 
