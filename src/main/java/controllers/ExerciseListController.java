@@ -1,5 +1,6 @@
 package controllers;
 
+import static services.UserService.User.TEACHER;
 import static spark.Spark.*;
 
 import controllers.utils.Request;
@@ -30,6 +31,8 @@ public class ExerciseListController {
 
         return Response.created(res, updatedExerciseList);
       });
+
+
       /*
        * Get all exercise lists
        */
@@ -74,6 +77,35 @@ public class ExerciseListController {
         ExerciseList createdExerciseList = createExerciseList(exerciseList);
         return Response.created(res, createdExerciseList);
       });
+
+      put("/:id", (req, res) -> {
+        Request.requiresAuthentication(req, res);
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
+        ExerciseList exerciseList = Request.getBodyAs(req.body(), ExerciseList.class);
+        int elId = Integer.parseInt(req.params(":id"));
+        if(Request.getRole(req).equals("teacher")) {
+          if(Request.getUserId(req) != getExerciseListById(elId).creator) {
+            return Response.unauthorized(res);
+          }
+        }
+        exerciseList = modifyExerciseList(exerciseList, elId);
+        return Response.created(res, getExerciseListById(elId));
+      });
+
+      delete("/:id", (req, res) -> {
+        Request.requiresAuthentication(req, res);
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
+        ExerciseList exerciseList = Request.getBodyAs(req.body(), ExerciseList.class);
+        int elId = Integer.parseInt(req.params(":id"));
+        if(Request.getRole(req).equals("teacher")) {
+          if(Request.getUserId(req) != getExerciseListById(elId).creator) {
+            return Response.unauthorized(res);
+          }
+        }
+        deleteExerciseList(exerciseList, elId);
+        return Response.ok(res);
+      });
+
 
       exception(ExerciseListNotCreated.class, (exception, request, response) ->
         Response.internalServerError(response)

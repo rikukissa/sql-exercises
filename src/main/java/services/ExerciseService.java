@@ -142,8 +142,8 @@ public class ExerciseService {
   }
 
   public static Exercise createExercise(Exercise exercise) throws ExerciseNotCreated {
-    String sql = "INSERT INTO exercise (description, type, creator, created_at) " +
-                 "values (:description, :type, :creator, :createdAt)";
+    String sql = "INSERT INTO exercise (description, type, creator) " +
+                 "values (:description, :type, :creator)";
 
     try(Connection con = DatabaseService.getConnection()) {
       int id = con
@@ -166,8 +166,40 @@ public class ExerciseService {
         .createQuery(sql)
         .bind(exampleAnswer)
         .executeUpdate();
+    }
+    return exampleAnswer;
+  }
 
+  public static Exercise modifyExercise(Exercise exercise, int eId) throws ExerciseNotFound {
+    String desc = exercise.description;
+    String type = exercise.type;
+    String sql = "UPDATE exercise SET description = :description, type = :type WHERE id = :id";
+    if(getExerciseById(eId) == null) {
+      throw new ExerciseNotFound();
+    }
+    try(Connection con = DatabaseService.getConnection()) {
+      con
+        .createQuery(sql)
+        .addParameter("id", eId)
+        .addParameter("description", desc)
+        .addParameter("type", type)
+        .executeUpdate();
+    }
+    return exercise;
+  }
 
+  public static ExampleAnswer modifyExampleAnswer(ExampleAnswer exampleAnswer, int eId) throws ExerciseNotFound {
+    String answer = exampleAnswer.answer;
+    String sql = "UPDATE example_answer SET answer = :answer WHERE exercise = :exercise";
+    if(getExerciseById(eId) == null) {
+      throw new ExerciseNotFound();
+    }
+    try(Connection con = DatabaseService.getConnection()) {
+      con
+        .createQuery(sql)
+        .addParameter("exercise", eId)
+        .addParameter("answer", answer)
+        .executeUpdate();
     }
     return exampleAnswer;
   }
