@@ -147,6 +147,25 @@ public class ExerciseListService {
     return exerciseList;
   }
 
+  public static ExerciseList deleteExerciseFromExerciseList(Exercise exercise, ExerciseList exerciseList)
+                throws ExerciseListNotFound, ExerciseNotFound {
+    String sql = "DELETE FROM exercise_list_exercise WHERE exercise_list = :exercise_list AND exercise = :exercise";
+    if(getExerciseListById(exerciseList.id) == null) {
+      throw new ExerciseListNotFound();
+    }
+    if(getExerciseById(exercise.id) == null) {
+      throw new ExerciseService.ExerciseNotFound();
+    }
+    try(Connection con = DatabaseService.getConnection()) {
+      con
+        .createQuery(sql)
+        .addParameter("exercise_list", exerciseList.id)
+        .addParameter("exercise", exercise.id)
+        .executeUpdate();
+    }
+    return exerciseList;
+  }
+
   public static ExerciseList modifyExerciseList(ExerciseList exerciseList, int elId) {
     String sql = "UPDATE exercise_list SET description = :description WHERE id = :id";
     try(Connection con = DatabaseService.getConnection()) {
@@ -159,8 +178,11 @@ public class ExerciseListService {
     return exerciseList;
   }
 
-  public static void deleteExerciseList(ExerciseList exerciseList, int elId) {
+  public static void deleteExerciseList(ExerciseList exerciseList, int elId) throws ExerciseListNotFound {
     String sql = "DELETE FROM exercise_list WHERE id = :id";
+    if(getExerciseListById(elId) == null) {
+      throw new ExerciseListNotFound();
+    }
     try(Connection con = DatabaseService.getConnection()) {
       con
         .createQuery(sql)

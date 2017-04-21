@@ -106,6 +106,21 @@ public class ExerciseListController {
         return Response.ok(res);
       });
 
+      delete("/:id/exercises", (req, res) -> {
+        Request.requiresAuthentication(req, res);
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
+        int elId = Integer.parseInt(req.params(":id"));
+        Exercise exercise = Request.getBodyAs(req.body(), Exercise.class);
+        ExerciseList exerciseList = getExerciseListById(elId);
+        if(Request.getRole(req).equals("teacher")) {
+          if(Request.getUserId(req) != getExerciseListById(elId).creator) {
+            return Response.unauthorized(res);
+          }
+        }
+        deleteExerciseFromExerciseList(exercise, exerciseList);
+        return Response.ok(res, getExerciseListById(elId));
+      });
+
 
       exception(ExerciseListNotCreated.class, (exception, request, response) ->
         Response.internalServerError(response)
