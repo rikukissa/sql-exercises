@@ -54,14 +54,19 @@ public class ExerciseController {
         Exercise createdExercise = createExercise(exercise);
         return Response.created(res, createdExercise);
       });
+      /*
+       * Create example answer for exercise
+       */
       post("/:id/example-answers", (req, res) -> {
         Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
         ExampleAnswer exampleAnswer = Request.getBodyAs(req.body(), ExampleAnswer.class);
         int id = Integer.parseInt(req.params(":id"));
         exampleAnswer.exercise = id;
-        return Response.created(res, createExampleAnswer(exampleAnswer));
+        return Response.created(res, createExampleAnswer(exampleAnswer, id));
       });
-
+      /*
+       * Modify exercise
+       */
       put("/:id", (req, res) -> {
         Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
         Exercise exercise = Request.getBodyAs(req.body(), Exercise.class);
@@ -74,7 +79,9 @@ public class ExerciseController {
         exercise = modifyExercise(exercise, eId);
         return Response.created(res, getExerciseById(eId));
       });
-
+      /*
+       * Modify example answer
+       */
       put("/:id/example-answers", (req, res) -> {
         Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
         ExampleAnswer exampleAnswer = Request.getBodyAs(req.body(), ExampleAnswer.class);
@@ -87,6 +94,21 @@ public class ExerciseController {
         exampleAnswer = modifyExampleAnswer(exampleAnswer, eId);
         exampleAnswer.exercise = eId;
         return Response.created(res, exampleAnswer);
+      });
+      /*
+       * Delete exercise
+       */
+      delete("/:id" , (req, res) -> {
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
+        Exercise exercise = Request.getBodyAs(req.body(), Exercise.class);
+        int eId = Integer.parseInt(req.params(":id"));
+        if(Request.getRole(req).equals("teacher")) {
+          if(Request.getUserId(req) != getExerciseById(eId).creator) {
+            return Response.unauthorized(res);
+          }
+        }
+        deleteExercise(exercise, eId);
+        return Response.ok(res);
       });
 
       exception(ExerciseNotCreated.class, (exception, request, response) ->

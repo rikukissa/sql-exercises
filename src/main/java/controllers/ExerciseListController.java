@@ -77,7 +77,9 @@ public class ExerciseListController {
         ExerciseList createdExerciseList = createExerciseList(exerciseList);
         return Response.created(res, createdExerciseList);
       });
-
+      /*
+       * Modify existing exerciselist
+       */
       put("/:id", (req, res) -> {
         Request.requiresAuthentication(req, res);
         Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
@@ -91,7 +93,9 @@ public class ExerciseListController {
         exerciseList = modifyExerciseList(exerciseList, elId);
         return Response.created(res, getExerciseListById(elId));
       });
-
+      /*
+       * Delete exerciselist
+       */
       delete("/:id", (req, res) -> {
         Request.requiresAuthentication(req, res);
         Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
@@ -105,7 +109,9 @@ public class ExerciseListController {
         deleteExerciseList(exerciseList, elId);
         return Response.ok(res);
       });
-
+      /*
+       * Delete exercise from exerciselist
+       */
       delete("/:id/exercises", (req, res) -> {
         Request.requiresAuthentication(req, res);
         Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));

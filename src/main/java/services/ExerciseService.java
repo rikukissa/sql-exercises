@@ -159,7 +159,10 @@ public class ExerciseService {
     }
   }
 
-  public static ExampleAnswer createExampleAnswer(ExampleAnswer exampleAnswer) {
+  public static ExampleAnswer createExampleAnswer(ExampleAnswer exampleAnswer, int id) throws ExerciseNotFound {
+    if(getExerciseById(id) == null) {
+      throw new ExerciseNotFound();
+    }
     String sql = "INSERT INTO example_answer (exercise, answer) values (:exercise, :answer)";
     try(Connection con = DatabaseService.getConnection()) {
       con
@@ -202,6 +205,19 @@ public class ExerciseService {
         .executeUpdate();
     }
     return exampleAnswer;
+  }
+
+  public static void deleteExercise(Exercise exercise, int elId) throws ExerciseNotFound {
+    String sql = "DELETE FROM exercise WHERE id = :id";
+    if(getExerciseById(elId) == null) {
+      throw new ExerciseNotFound();
+    }
+    try(Connection con = DatabaseService.getConnection()) {
+      con
+        .createQuery(sql)
+        .addParameter("id", elId)
+        .executeUpdate();
+    }
   }
 }
 
