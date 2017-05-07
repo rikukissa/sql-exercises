@@ -17,6 +17,8 @@ import {
   updateExampleAnswerInExercise as updateExampleAnswerInExerciseRequest,
   updateExerciseList as updateExerciseListRequest,
   deleteExerciseFromExerciseList as deleteExerciseFromExerciseListRequest,
+  deleteExercise as deleteExerciseRequest,
+  deleteExerciseList as deleteExerciseListRequest,
 } from './service';
 
 const EXERCISE_LISTS_LOADED = 'EXERCISE_LISTS_LOADED';
@@ -36,6 +38,8 @@ const EXERCISE_CREATED = 'EXERCISE_CREATED';
 const EXERCISE_UPDATED = 'EXERCISE_UPDATED';
 const EXERCISE_LIST_LOADED = 'EXERCISE_LIST_LOADED';
 const EXERCISE_LIST_UPDATED = 'EXERCISE_LIST_UPDATED';
+const EXERCISE_DELETED = 'EXERCISE_DELETED';
+const EXERCISE_LIST_DELETED = 'EXERCISE_LIST_DELETED';
 
 export function createExercise() {
   return async (dispatch, getState) => {
@@ -53,6 +57,22 @@ export function createExercise() {
       await addExampleAnswerToExerciseRequest(exercise.id, values.answer, token);
       dispatch({ type: EXERCISE_CREATED, payload: exercise });
     }
+  };
+}
+
+export function deleteExercise(id) {
+  return async (dispatch, getState) => {
+    const { token } = getState();
+    await deleteExerciseRequest(id, token);
+    dispatch({ type: EXERCISE_DELETED, payload: id });
+  };
+}
+
+export function deleteExerciseList(id) {
+  return async (dispatch, getState) => {
+    const { token } = getState();
+    await deleteExerciseListRequest(id, token);
+    dispatch({ type: EXERCISE_LIST_DELETED, payload: id });
   };
 }
 
@@ -208,6 +228,27 @@ function reducer(state = INITIAL_STATE, action) {
         exerciseList: action.payload,
         exerciseLists: state.exerciseLists.map((list) =>
           list.id === action.payload.id ? action.payload : list,
+        ),
+      };
+    }
+    case EXERCISE_LIST_DELETED: {
+      return {
+        ...state,
+        exerciseList: state.exerciseList && state.exerciseList.id === action.payload ?
+          null :
+          state.exerciseList,
+        exerciseLists: state.exerciseLists.filter((list) =>
+          list.id !== action.payload,
+        ),
+      };
+    }
+    case EXERCISE_DELETED: {
+      return {
+        ...state,
+        exerciseList: state.exerciseList && state.exerciseList.exercises
+          .filter((exer) => exer.id !== action.payload),
+        exercises: state.exercises.filter((exer) =>
+          exer.id !== action.payload,
         ),
       };
     }

@@ -10,6 +10,10 @@ const api = axios.create({
   transformRequest: [(data) => JSON.stringify(snakeCase(data))],
   transformResponse: [
     (data) => {
+      if (data === '') {
+        return null;
+      }
+
       const responseData = JSON.parse(data);
       return Array.isArray(responseData)
         ? responseData.map((item) => (isObject(item) ? camelCase(item) : item))
@@ -84,6 +88,16 @@ export function createExerciseList(exerciseList, token) {
     .then(({ data }) => data);
 }
 
+export function deleteExerciseList(exerciseListId, token) {
+  return api
+    .delete(`${ROOT}/exercise-lists/${exerciseListId}`, {
+      headers: {
+        Authorization: token,
+      },
+    })
+    .then(({ data }) => data);
+}
+
 export function updateExerciseList(exerciseList, token) {
   return api
     .put(`${ROOT}/exercise-lists/${exerciseList.id}`, exerciseList, {
@@ -107,6 +121,16 @@ export function updateExercise(exercise, token) {
 export function createExercise(exercise, token) {
   return api
     .post(`${ROOT}/exercises`, exercise, {
+      headers: {
+        Authorization: token,
+      },
+    })
+    .then(({ data }) => data);
+}
+
+export function deleteExercise(exerciseId, token) {
+  return api
+    .delete(`${ROOT}/exercises/${exerciseId}`, {
       headers: {
         Authorization: token,
       },

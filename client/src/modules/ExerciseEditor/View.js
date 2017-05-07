@@ -10,6 +10,8 @@ import {
   createExercise,
   getExerciseList,
   getExampleAnswers,
+  deleteExercise,
+  deleteExerciseList,
 } from '../../state';
 import Report from '../../components/Report';
 import { getExerciseTypeReport, getExerciseReport } from '../../service';
@@ -37,6 +39,15 @@ const ListItem = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
+`;
+
+const DeleteLink = styled.button`
+  border: 0;
+  color: #349ad0;
+  font-size: inherit;
+  background: transparent;
+  padding: 0;
+  margin-left: 0.5em;
 `;
 
 const renderExercises = ({ exercises, fields, meta: { touched, error, submitFailed } }) => (
@@ -179,13 +190,7 @@ class ExerciseEditor extends Component {
 
     const exerciseListDefaults = existingExerciseList ? {
       ...existingExerciseList,
-      exercise: exercises.map((exercise) => {
-        if (exerciseList === null) {
-          return false;
-        }
-        const existing = find(exerciseList.exercises, (exer) => exer.id === exercise.id);
-        return Boolean(existing);
-      }),
+      exercise: exerciseList && exerciseList.exercises.reduce((memo, exercise) => ({ ...memo, [exercise.id]: true }), {}),
     } : null;
 
     const exerciseDefaults = existingExercise ?
@@ -194,6 +199,7 @@ class ExerciseEditor extends Component {
 
     const exerciseEditMode = Boolean(existingExercise);
     const exerciseListEditMode = Boolean(existingExerciseList);
+
 
     return (
       <div>
@@ -237,9 +243,12 @@ class ExerciseEditor extends Component {
                     <strong>#{exercise.id}</strong> {exercise.description}
                   </span>
                   {user && (user.role === 'admin' || user.id === exercise.creator) && (
-                    <EditLink to={`/exercise-editor/exercises/${exercise.id}`}>
-                      Muokkaa
-                    </EditLink>
+                    <span>
+                      <EditLink to={`/exercise-editor/exercises/${exercise.id}`}>
+                        Muokkaa
+                      </EditLink>
+                      <DeleteLink onClick={() => this.props.deleteExercise(exercise.id)}>Poista</DeleteLink>
+                    </span>
                   )}
                 </ListItem>
               );
@@ -257,9 +266,12 @@ class ExerciseEditor extends Component {
                 <ListItem key={exerciseList.id}>
                   {exerciseList.description}
                   {user && (user.role === 'admin' || user.id === exerciseList.creator) && (
-                    <EditLink to={`/exercise-editor/exercise-lists/${exerciseList.id}`}>
-                      Muokkaa
-                    </EditLink>
+                    <span>
+                      <EditLink to={`/exercise-editor/exercise-lists/${exerciseList.id}`}>
+                        Muokkaa
+                      </EditLink>
+                      <DeleteLink onClick={() => this.props.deleteExerciseList(exerciseList.id)}>Poista</DeleteLink>
+                    </span>
                   )}
                 </ListItem>
               );
@@ -300,6 +312,12 @@ function mapDispatchToProps(dispatch) {
     createExercise: (event) => {
       event.preventDefault();
       dispatch(createExercise());
+    },
+    deleteExercise: (id) => {
+      dispatch(deleteExercise(id));
+    },
+    deleteExerciseList: (id) => {
+      dispatch(deleteExerciseList(id));
     },
   };
 }
