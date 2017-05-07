@@ -26,6 +26,24 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES in schema public to exercises;
 4. Start the client by going into frontend directory and running `yarn install && npm start`
 
 
+### Building a release version
+
+1. Run `yarn build:jar` in `client` directory
+
+This builds the frontend assets and copies them under `src/main/resources/build`.
+After this the client can be accessed through the running API's root path e.g. `http://localhost:4567/`.
+
+2. Build `.jar` file by running `mvn assembly:assembly`. `target/` directory should now contain a file named `sql-exercises.jar`
+
+3. The jar can be run with `java -jar target/sql-exercises.jar`
+Following optional environment parameters can be used to override the default database connection url, user and password
+
+```
+JDBC_DATABASE_URL=jdbc:postgresql://localhost:5432/exercises
+JDBC_DATABASE_USERNAME=exercises
+JDBC_DATABASE_PASSWORD=super_secret_database_password
+```
+
 ## API endspoints
 
 ### Users

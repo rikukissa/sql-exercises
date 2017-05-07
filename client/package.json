@@ -33,6 +33,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:jar": "PUBLIC_URL=/ react-scripts build && cp -r build ../src/main/resources",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }

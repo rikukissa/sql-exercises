@@ -12,11 +12,11 @@ public class Main {
 
     port(getHerokuAssignedPort());
 
+    staticFiles.location("/build");
+
     get("/hello", (req, res) -> "Hello World");
 
-    options("/*", (request, response) -> {
-      return "OK";
-    });
+    options("/*", (request, response) -> "OK");
 
     before((request, response) -> {
       response.header("Access-Control-Allow-Origin", "*");

@@ -19,6 +19,7 @@ public class DatabaseService {
     if(System.getenv("JDBC_DATABASE_URL") != null) {
       return System.getenv("JDBC_DATABASE_URL");
     }
+
     return PROTOCOL + "//" + HOST + ":" + PORT + "/" + DATABASE;
   }
 
