@@ -195,7 +195,7 @@ class ExerciseListView extends Component {
             <strong>{this.state.session.maxTries - this.state.currentTry + 1}</strong>
           </CurrentTry>
           <br />
-          <a href="/database.png" target="_blank" rel="noopener noreferrer">Tietokannan rakenne</a>
+          <a href={`${process.env.PUBLIC_URL}/database.png`} target="_blank" rel="noopener noreferrer">Tietokannan rakenne</a>
           <Exercise
             disabled={triesExceeded || this.state.correct}
             error={this.state.error}
