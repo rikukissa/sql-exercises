@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import styled from 'styled-components';
-import { getExerciseList, createSession, submitAnswer } from '../../service';
+
 import Exercise from '../../components/Exercise';
 import Button from '../../components/Button';
 import { showLogin, getExampleAnswers, clearExampleAnswers } from '../../state';
-import { getExerciseListReport } from '../../service';
+import { getExerciseListReport, getExerciseList, createSession, submitAnswer } from '../../service';
 import Report from '../../components/Report';
 
 const ShowAnswerButton = styled(Button)`
@@ -45,17 +46,20 @@ const SuccessMessage = styled.div`
   color: #3bbf9d;
 `;
 
+const initialState = {
+  exerciseList: null,
+  currentTry: 1,
+  session: null,
+  result: [],
+  listFinished: false,
+  correct: false,
+  currentExercise: null,
+  currentExerciseStartedAt: null,
+  error: null,
+};
+
 class ExerciseListView extends Component {
-  state = {
-    exerciseList: null,
-    currentTry: 1,
-    session: null,
-    result: [],
-    correct: false,
-    currentExercise: null,
-    currentExerciseStartedAt: null,
-    error: null,
-  };
+  state = initialState;
   componentDidMount = () => {
     this.getExerciseList(this.props.match.params.id);
   };
@@ -73,7 +77,7 @@ class ExerciseListView extends Component {
   }
   getExerciseList = (id) => {
     getExerciseList(id).then((exerciseList) =>
-      this.setState(() => ({ exerciseList, currentExercise: null })),
+      this.setState(() => ({ ...initialState, exerciseList })),
     );
   };
   start = () => {
@@ -100,8 +104,10 @@ class ExerciseListView extends Component {
     this.props.clearExampleAnswers();
 
     if (currentExerciseIndex + 1 === exercises.length) {
-      // TODO
-      window.alert('ALL DONE!');
+      this.setState({
+        listFinished: true,
+      });
+
       return;
     }
 
@@ -161,6 +167,19 @@ class ExerciseListView extends Component {
   };
   render() {
     const { exampleAnswers } = this.props;
+
+    if (this.state.listFinished) {
+      return (
+        <div>
+          <ExerciseTitle>
+            Onnea!
+          </ExerciseTitle>
+          <p>Suoritit kaikki tehtävälistan tehtävät.</p>
+          <Link to="/me">Klikkaa tästä tarkastellaksesi kaikkia suorituksiasi.</Link>
+
+        </div>
+      );
+    }
 
     if (this.state.currentExercise) {
       const { exercises } = this.state.exerciseList;
