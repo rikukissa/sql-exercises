@@ -6,11 +6,11 @@ let ROOT = 'http://localhost:4567';
 
 if (process.env.NODE_ENV === 'production') {
   ROOT = 'https://shrouded-bayou-72543.herokuapp.com';
+  if (process.env.PUBLIC_URL === '') {
+    ROOT = '';
+  }
 }
 
-if (process.env.PUBLIC_URL === '') {
-  ROOT = '';
-}
 
 const api = axios.create({
   transformRequest: [(data) => JSON.stringify(snakeCase(data))],
