@@ -82,7 +82,7 @@ public class UserService {
   }
 
   public static List<User> getUsersWithSessionsForCreator(int creatorId) {
-    String sql = "select \"user\".* from exercise_list right join session on exercise_list.id = session.exercise_list left join \"user\" on session.user = \"user\".id where exercise_list.creator = :creator;";
+    String sql = "select distinct \"user\".* from exercise_list right join session on exercise_list.id = session.exercise_list left join \"user\" on session.user = \"user\".id where exercise_list.creator = :creator;";
 
     try(Connection con = DatabaseService.getConnection()) {
       List<User> users = con

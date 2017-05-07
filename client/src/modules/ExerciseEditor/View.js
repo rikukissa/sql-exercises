@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { find } from 'lodash';
 import { Field, FieldArray, reduxForm } from 'redux-form';
-import { getExercises, createExerciseList, createExercise } from '../../state';
+import { Link } from 'react-router-dom';
+import {
+  getExercises,
+  createExerciseList,
+  createExercise,
+  getExerciseList,
+  getExampleAnswers,
+} from '../../state';
 import Report from '../../components/Report';
 import { getExerciseTypeReport, getExerciseReport } from '../../service';
 
@@ -12,10 +20,23 @@ const Container = styled.div`
 
 const Column = styled.div`
   flex: 0.5;
+  &:last-child {
+    padding-left: 1em;
+  }
 `;
 
 const Form = styled.form`
   margin-bottom: 2em;
+`;
+
+const EditLink = styled(Link)`
+  text-align: right;
+`;
+
+const ListItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
 `;
 
 const renderExercises = ({ exercises, fields, meta: { touched, error, submitFailed } }) => (
@@ -33,7 +54,8 @@ const renderExercises = ({ exercises, fields, meta: { touched, error, submitFail
 );
 
 const ExerciseListForm = (props) => {
-  const { exercises, onSubmit, pristine, submitting } = props;
+  const { exercises, onSubmit, pristine, submitting, editMode } = props;
+
   return (
     <Form onSubmit={onSubmit}>
       <div>
@@ -46,14 +68,17 @@ const ExerciseListForm = (props) => {
         </div>
       </div>
       <div>
-        <button type="submit" disabled={pristine || submitting}>Luo tehtävälista</button>
+        <button type="submit" disabled={pristine || submitting}>
+          {editMode ? 'Tallenna' : 'Luo tehtävälista'}
+        </button>
       </div>
     </Form>
   );
 };
 
 const ExerciseForm = (props) => {
-  const { onSubmit, pristine, submitting } = props;
+  const { onSubmit, pristine, submitting, editMode } = props;
+
   return (
     <Form onSubmit={onSubmit}>
       <div>
@@ -89,7 +114,9 @@ const ExerciseForm = (props) => {
         </div>
       </div>
       <div>
-        <button type="submit" disabled={pristine || submitting}>Luo tehtävä</button>
+        <button type="submit" disabled={pristine || submitting}>
+          {editMode ? 'Tallenna' : 'Luo tehtävä'}
+        </button>
       </div>
     </Form>
   );
@@ -97,35 +124,106 @@ const ExerciseForm = (props) => {
 
 const CreateExerciseForm = reduxForm({
   form: 'exercise',
+  enableReinitialize: true,
 })(ExerciseForm);
 
 const CreateExerciseListForm = reduxForm({
   form: 'exerciseList',
+  enableReinitialize: true,
 })(ExerciseListForm);
 
 class ExerciseEditor extends Component {
   componentDidMount() {
     this.props.getExercises();
+    const { exerciseId, exerciseListId } = this.props.match.params;
+
+    if (exerciseId) {
+      this.props.getExampleAnswers(parseInt(exerciseId, 10));
+    }
+    if (exerciseListId) {
+      this.props.getExerciseList(parseInt(exerciseListId, 10));
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    const { exerciseId, exerciseListId } = nextProps.match.params;
+    const exerciseIdChanged = exerciseId && exerciseId !== this.props.match.params.exerciseId;
+    const exerciseListIdChanged = exerciseListId && exerciseListId !== this.props.match.params.exerciseListId;
+
+    if (exerciseIdChanged) {
+      this.props.getExampleAnswers(parseInt(exerciseId, 10));
+    }
+
+    if (exerciseListIdChanged) {
+      this.props.getExerciseList(parseInt(exerciseListId, 10));
+    }
   }
   render() {
+    const {
+      match,
+      exerciseLists,
+      exercises,
+      exerciseList,
+      exampleAnswers,
+      user,
+    } = this.props;
+
+    const { exerciseId, exerciseListId } = match.params;
+
+    const existingExerciseList = find(exerciseLists, {
+      id: parseInt(exerciseListId, 10),
+    });
+
+    const existingExercise = find(exercises, {
+      id: parseInt(exerciseId, 10),
+    });
+
+    const exerciseListDefaults = existingExerciseList ? {
+      ...existingExerciseList,
+      exercise: exercises.map((exercise) => {
+        if (exerciseList === null) {
+          return false;
+        }
+        const existing = find(exerciseList.exercises, (exer) => exer.id === exercise.id);
+        return Boolean(existing);
+      }),
+    } : null;
+
+    const exerciseDefaults = existingExercise ?
+      { ...existingExercise, answer: exampleAnswers[0] } :
+      { type: 'easy' };
+
+    const exerciseEditMode = Boolean(existingExercise);
+    const exerciseListEditMode = Boolean(existingExerciseList);
+
     return (
       <div>
         <h1>Tehtäväeditori</h1>
 
         <Container>
           <Column>
-            <h3>Luo tehtävä</h3>
+            <h3>{exerciseEditMode ? `Muokkaa tehtävää #${existingExercise.id}` : 'Luo tehtävä'}</h3>
             <CreateExerciseForm
-              initialValues={{ type: 'easy' }}
+              initialValues={exerciseDefaults}
+              editMode={exerciseEditMode}
               onSubmit={this.props.createExercise}
             />
+            {exerciseEditMode && <Link to="/exercise-editor">Lopeta muokkaaminen</Link>}
           </Column>
           <Column>
-            <h3>Luo tehtävälista</h3>
+            <h3>
+              {
+                exerciseListEditMode ?
+                  `Muokkaa tehtävälistaa "${existingExerciseList.description}"` :
+                  'Luo tehtävälista'
+              }
+            </h3>
             <CreateExerciseListForm
+              editMode={exerciseListEditMode}
+              initialValues={exerciseListDefaults}
               exercises={this.props.exercises}
               onSubmit={this.props.createExerciseList}
             />
+            {exerciseListEditMode && <Link to="/exercise-editor">Lopeta muokkaaminen</Link>}
           </Column>
         </Container>
         <hr />
@@ -134,9 +232,16 @@ class ExerciseEditor extends Component {
             <h2>Tehtävät</h2>
             {this.props.exercises.map((exercise) => {
               return (
-                <div key={exercise.id}>
-                  #{exercise.id} {exercise.description}
-                </div>
+                <ListItem key={exercise.id}>
+                  <span>
+                    <strong>#{exercise.id}</strong> {exercise.description}
+                  </span>
+                  {user && (user.role === 'admin' || user.id === exercise.creator) && (
+                    <EditLink to={`/exercise-editor/exercises/${exercise.id}`}>
+                      Muokkaa
+                    </EditLink>
+                  )}
+                </ListItem>
               );
             })}
             <br />
@@ -149,9 +254,14 @@ class ExerciseEditor extends Component {
             <h2>Tehtävälistat</h2>
             {this.props.exerciseLists.map((exerciseList) => {
               return (
-                <div key={exerciseList.id}>
+                <ListItem key={exerciseList.id}>
                   {exerciseList.description}
-                </div>
+                  {user && (user.role === 'admin' || user.id === exerciseList.creator) && (
+                    <EditLink to={`/exercise-editor/exercise-lists/${exerciseList.id}`}>
+                      Muokkaa
+                    </EditLink>
+                  )}
+                </ListItem>
               );
             })}
             <br />
@@ -168,14 +278,21 @@ class ExerciseEditor extends Component {
 
 function mapStateToProps(state) {
   return {
+    exampleAnswers: state.exampleAnswers,
     exerciseLists: state.exerciseLists,
+    exerciseList: state.exerciseList,
     exercises: state.exercises,
+    user: state.user,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
+    getExampleAnswers: (exerciseId) => dispatch(getExampleAnswers(exerciseId)),
     getExercises: () => dispatch(getExercises()),
+    getExerciseList: (id) => {
+      dispatch(getExerciseList(id));
+    },
     createExerciseList: (event) => {
       event.preventDefault();
       dispatch(createExerciseList());

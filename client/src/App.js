@@ -109,6 +109,8 @@ class App extends Component {
             <Route exact path="/users" component={UserListView} />
             <Route path="/users/:id" component={UserView} />
             <Route exact path="/exercise-editor" component={ExerciseEditor} />
+            <Route exact path="/exercise-editor/exercises/:exerciseId" component={ExerciseEditor} />
+            <Route exact path="/exercise-editor/exercise-lists/:exerciseListId" component={ExerciseEditor} />
           </Content>
           <LoginModal />
         </Container>

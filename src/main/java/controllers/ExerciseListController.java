@@ -1,6 +1,7 @@
 package controllers;
 
 import static services.UserService.User.TEACHER;
+import static services.UserService.User.ADMIN;
 import static spark.Spark.*;
 
 import controllers.utils.Request;
@@ -21,7 +22,7 @@ public class ExerciseListController {
       post("/:id/exercises", (req, res) -> {
         int id = Integer.parseInt(req.params(":id"));
         Request.requiresAuthentication(req, res);
-        Request.requiresRole(req, res, Arrays.asList(UserService.User.TEACHER, UserService.User.ADMIN));
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, ADMIN));
         ExerciseList exerciseList = ExerciseListService.getExerciseListById(id);
         if(exerciseList.creator != Request.getUserId(req)) {
           return Response.unauthorized(res);
@@ -71,7 +72,7 @@ public class ExerciseListController {
        */
       post("",  (req, res) -> {
         Request.requiresAuthentication(req, res);
-        Request.requiresRole(req, res, Arrays.asList(UserService.User.TEACHER, UserService.User.ADMIN));
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, ADMIN));
         ExerciseList exerciseList = Request.getBodyAs(req.body(), ExerciseList.class);
         exerciseList.creator = Request.getUserId(req);
         ExerciseList createdExerciseList = createExerciseList(exerciseList);
@@ -82,7 +83,7 @@ public class ExerciseListController {
        */
       put("/:id", (req, res) -> {
         Request.requiresAuthentication(req, res);
-        Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, ADMIN));
         ExerciseList exerciseList = Request.getBodyAs(req.body(), ExerciseList.class);
         int elId = Integer.parseInt(req.params(":id"));
         if(Request.getRole(req).equals("teacher")) {
@@ -98,7 +99,7 @@ public class ExerciseListController {
        */
       delete("/:id", (req, res) -> {
         Request.requiresAuthentication(req, res);
-        Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, ADMIN));
         ExerciseList exerciseList = Request.getBodyAs(req.body(), ExerciseList.class);
         int elId = Integer.parseInt(req.params(":id"));
         if(Request.getRole(req).equals("teacher")) {
@@ -112,13 +113,19 @@ public class ExerciseListController {
       /*
        * Delete exercise from exerciselist
        */
-      delete("/:id/exercises", (req, res) -> {
+      delete("/:id/exercises/:exercise-id", (req, res) -> {
+        System.out.println("foo");
         Request.requiresAuthentication(req, res);
-        Request.requiresRole(req, res, Arrays.asList(TEACHER, UserService.User.ADMIN));
+        System.out.println("bar");
+        Request.requiresRole(req, res, Arrays.asList(TEACHER, ADMIN));
+        System.out.println("ba<");
         int elId = Integer.parseInt(req.params(":id"));
-        Exercise exercise = Request.getBodyAs(req.body(), Exercise.class);
+        int exId = Integer.parseInt(req.params(":exercise-id"));
+
+        Exercise exercise = getExerciseById(exId);
         ExerciseList exerciseList = getExerciseListById(elId);
-        if(Request.getRole(req).equals("teacher")) {
+
+        if(Request.getRole(req).equals(TEACHER)) {
           if(Request.getUserId(req) != getExerciseListById(elId).creator) {
             return Response.unauthorized(res);
           }

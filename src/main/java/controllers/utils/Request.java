@@ -56,8 +56,13 @@ public class Request  {
       JWT.decode(token);
       return;
     }
-    catch (NullPointerException exception) {}
-    catch (JWTDecodeException exception) {}
+    catch (NullPointerException exception) {
+      System.out.println(exception.getStackTrace());
+    }
+    catch (JWTDecodeException exception) {
+      System.out.println("jwtdec");
+
+    }
 
     halt(400, Response.unauthorized(response));
   }

@@ -84,6 +84,26 @@ export function createExerciseList(exerciseList, token) {
     .then(({ data }) => data);
 }
 
+export function updateExerciseList(exerciseList, token) {
+  return api
+    .put(`${ROOT}/exercise-lists/${exerciseList.id}`, exerciseList, {
+      headers: {
+        Authorization: token,
+      },
+    })
+    .then(({ data }) => data);
+}
+
+export function updateExercise(exercise, token) {
+  return api
+    .put(`${ROOT}/exercises/${exercise.id}`, exercise, {
+      headers: {
+        Authorization: token,
+      },
+    })
+    .then(({ data }) => data);
+}
+
 export function createExercise(exercise, token) {
   return api
     .post(`${ROOT}/exercises`, exercise, {
@@ -93,6 +113,21 @@ export function createExercise(exercise, token) {
     })
     .then(({ data }) => data);
 }
+
+export function updateExampleAnswerInExercise(exerciseId, answer, token) {
+  return api
+    .put(
+      `${ROOT}/exercises/${exerciseId}/example-answers`,
+      { answer },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+    )
+    .then(({ data }) => data);
+}
+
 export function addExampleAnswerToExercise(exerciseId, answer, token) {
   return api
     .post(
@@ -114,6 +149,18 @@ export function addExerciseToExerciseList(exerciseListId, exerciseId, token) {
     {
       id: exerciseId,
     },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+    )
+    .then(({ data }) => data);
+}
+export function deleteExerciseFromExerciseList(exerciseList, exercise, token) {
+  return api
+    .delete(
+      `${ROOT}/exercise-lists/${exerciseList.id}/exercises/${exercise.id}`,
     {
       headers: {
         Authorization: token,
