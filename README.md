@@ -44,6 +44,30 @@ JDBC_DATABASE_USERNAME=exercises
 JDBC_DATABASE_PASSWORD=super_secret_database_password
 ```
 
+### Test users
+
+Initial database seed contains the following users
+* **Opettaja**
+  * student number: 12345
+  * role: teacher
+
+* **Admin**
+  * student number: 00000
+  * role: admin
+
+* **Juha Sipilä**
+  * student number: 0001
+  * role: student
+
+* **Alexander Stubb**
+  * student number: 0002
+  * role: student
+
+* **Timo Soini**
+  * student number: 0003
+  * role: student
+
+
 ## API endspoints
 
 ### Users
