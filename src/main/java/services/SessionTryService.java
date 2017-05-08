@@ -3,11 +3,10 @@ package services;
 import org.sql2o.Connection;
 
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 
+import org.sql2o.Query;
 import org.sql2o.Sql2oException;
 import services.UserService.User;
 
@@ -144,20 +143,48 @@ public class SessionTryService {
     }
 
     Exercise exercise = getExerciseById(sessionTry.exercise);
-    try(Connection con = DatabaseService.getConnection()) {
-      con.getJdbcConnection().setSchema("sandbox");
-      List<Map<String,Object>> correctAnswer = con
-        .createQuery(exercise.exampleAnswers.get(0))
-        .executeAndFetchTable()
-        .asList();
 
-      List<Map<String,Object>> userAnswerResult = con
-        .createQuery(sessionTry.answer)
-        .executeAndFetchTable()
-        .asList();
+
+    try(Connection con = DatabaseService.getTransaction()) {
+      con.getJdbcConnection().setSchema("sandbox");
+
+      String type = exercise.exampleAnswers.get(0).toLowerCase().split(" ")[0];
+
+      Query q = con.createQuery(exercise.exampleAnswers.get(0));
+
+      List<Map<String,Object>> correctAnswer = Collections.emptyList();
+      List<Map<String,Object>> userAnswerResult = Collections.emptyList();
+      int correctUpdateAmount = 0;
+      int userUpdateAmount = 0;
+
+      boolean isUpdate = type.equals("insert") || type.equals("update");
+
+      if(isUpdate) {
+        correctUpdateAmount = q.executeUpdate().getResult();
+      } else {
+        correctAnswer = q.executeAndFetchTable().asList();
+      }
+
+      con.rollback(false);
+      con.getJdbcConnection().setSchema("sandbox");
+
+      q = con.createQuery(sessionTry.answer);
+
+      if(isUpdate) {
+        userUpdateAmount = q.executeUpdate().getResult();
+      } else {
+        userAnswerResult = q
+          .executeAndFetchTable()
+          .asList();
+      }
+
+      con.rollback();
 
       sessionTry.result = userAnswerResult;
-      sessionTry.correct = isEqualResult(correctAnswer, userAnswerResult);
+      sessionTry.correct = isUpdate ?
+        correctUpdateAmount == userUpdateAmount :
+        isEqualResult(correctAnswer, userAnswerResult);
+
     } catch (Sql2oException err) {
       sessionTry.correct = false;
       createSessionTry(sessionTry);

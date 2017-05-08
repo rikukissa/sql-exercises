@@ -40,6 +40,10 @@ public class DatabaseService {
     Sql2o sql2o = new Sql2o(getUrl(), getUsername(), getPassword());
     return sql2o.open();
   }
+  public static Connection getTransaction() {
+    Sql2o sql2o = new Sql2o(getUrl(), getUsername(), getPassword());
+    return sql2o.beginTransaction();
+  }
   public static void migrate() {
     Flyway flyway = new Flyway();
     flyway.setDataSource(getUrl(), getUsername(), getPassword());
