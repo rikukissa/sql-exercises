@@ -31,13 +31,24 @@ public class ExerciseService {
     public int id;
     public String description;
     public String type;
+    public String difficulty;
+    public String table;
     public Integer creator;
     public Date createdAt;
     public List<String> exampleAnswers;
 
-    public Exercise(String description, String type, Integer creator, Date createdAt) {
+    public Exercise(
+      String description,
+      String type,
+      String difficulty,
+      String table,
+      Integer creator,
+      Date createdAt
+    ) {
       this.description = description;
       this.type = type;
+      this.difficulty = difficulty;
+      this.table = table;
       this.creator = creator;
       this.createdAt = createdAt;
     }
@@ -142,8 +153,8 @@ public class ExerciseService {
   }
 
   public static Exercise createExercise(Exercise exercise) throws ExerciseNotCreated {
-    String sql = "INSERT INTO exercise (description, type, creator) " +
-                 "values (:description, :type, :creator)";
+    String sql = "INSERT INTO exercise (description, type, creator, difficulty, \"table\") " +
+                 "values (:description, :type, :creator, :difficulty, :table)";
 
     try(Connection con = DatabaseService.getConnection()) {
       int id = con

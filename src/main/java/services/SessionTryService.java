@@ -146,44 +146,54 @@ public class SessionTryService {
 
 
     try(Connection con = DatabaseService.getTransaction()) {
-      con.getJdbcConnection().setSchema("sandbox");
+      con.getJdbcConnection().setSchema("sandbox" + session.id);
 
-      String type = exercise.exampleAnswers.get(0).toLowerCase().split(" ")[0];
+      String type = exercise.type;
 
       Query q = con.createQuery(exercise.exampleAnswers.get(0));
 
-      List<Map<String,Object>> correctAnswer = Collections.emptyList();
-      List<Map<String,Object>> userAnswerResult = Collections.emptyList();
-      int correctUpdateAmount = 0;
-      int userUpdateAmount = 0;
+      List<Map<String,Object>> correctAnswer;
+      List<Map<String,Object>> userAnswerResult;
 
-      boolean isUpdate = type.equals("insert") || type.equals("update");
+      boolean isUpdate =
+        type.equals("insert") ||
+        type.equals("update") ||
+        type.equals("delete");
 
       if(isUpdate) {
-        correctUpdateAmount = q.executeUpdate().getResult();
+        q.executeUpdate();
+        correctAnswer = con
+          .createQuery(String.format("select * from %s", exercise.table))
+          .executeAndFetchTable()
+          .asList();
       } else {
         correctAnswer = q.executeAndFetchTable().asList();
       }
 
       con.rollback(false);
-      con.getJdbcConnection().setSchema("sandbox");
+      con.getJdbcConnection().setSchema("sandbox" + session.id);
 
       q = con.createQuery(sessionTry.answer);
 
       if(isUpdate) {
-        userUpdateAmount = q.executeUpdate().getResult();
+        q.executeUpdate();
+        userAnswerResult = con
+          .createQuery(String.format("select * from %s", exercise.table))
+          .executeAndFetchTable()
+          .asList();
       } else {
         userAnswerResult = q
           .executeAndFetchTable()
           .asList();
       }
 
-      con.rollback();
-
       sessionTry.result = userAnswerResult;
-      sessionTry.correct = isUpdate ?
-        correctUpdateAmount == userUpdateAmount :
-        isEqualResult(correctAnswer, userAnswerResult);
+      boolean correct = isEqualResult(correctAnswer, userAnswerResult);
+      sessionTry.correct = correct;
+
+      if(correct) {
+        con.commit();
+      }
 
     } catch (Sql2oException err) {
       sessionTry.correct = false;

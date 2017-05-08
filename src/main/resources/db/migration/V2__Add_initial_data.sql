@@ -10,45 +10,28 @@ INSERT INTO "user" (name, student_number, field) VALUES ('Juha Sipilä', '00001'
 INSERT INTO "user" (name, student_number, field) VALUES ('Alexander Stubb', '00002', 'TKT');
 INSERT INTO "user" (name, student_number, field) VALUES ('Timo Soini', '00003', 'TKT');
 
--- esimerkkitaulun opiskelijat
-INSERT INTO opiskelijat VALUES(1, 'Maija', 'TKO');
-INSERT INTO opiskelijat VALUES(2, 'Ville', 'TKO');
-INSERT INTO opiskelijat VALUES(3, 'Kalle', 'VT');
-INSERT INTO opiskelijat VALUES(4, 'Liisa', 'VT');
-
--- esimerkkitaulun kurssit
-INSERT INTO kurssit VALUES(1, 'tkp', 'KI');
-INSERT INTO kurssit VALUES(2, 'oope', 'JL');
-INSERT INTO kurssit VALUES(3, 'tiko', 'MJ');
-
--- esimerkkitaulun suoritukset
-INSERT INTO suoritukset VALUES(1, 1, 5);
-INSERT INTO suoritukset VALUES(1, 2, 4);
-INSERT INTO suoritukset VALUES(1, 3, 2);
-INSERT INTO suoritukset VALUES(2, 1, 5);
-INSERT INTO suoritukset VALUES(2, 2, 3);
-INSERT INTO suoritukset VALUES(2, 4, 3);
-INSERT INTO suoritukset VALUES(3, 1, 5);
-INSERT INTO suoritukset VALUES(3, 2, 4);
-
 -- Perusharjoitukset
 INSERT INTO exercise_list (id, description, creator) VALUES (0, 'Perusharjoitukset', 0);
 SELECT setval('exercise_list_id_seq', 1);
 
 -- Perusharjoitukset 1
-INSERT INTO exercise (id, description, type, creator) VALUES (
+INSERT INTO exercise (id, description, type, difficulty, "table", creator) VALUES (
   0,
   'Valitse opettajien nimet',
+  'select',
   'easy',
+  'kurssit',
   0
 );
 INSERT INTO example_answer (exercise, answer) VALUES (0, 'SELECT opettaja FROM kurssit;');
 
 -- Perusharjoitukset 2
-INSERT INTO exercise (id, description, type, creator) VALUES (
+INSERT INTO exercise (id, description, type, difficulty, "table", creator) VALUES (
   1,
   'Valitse opiskelijoiden nimet, joilla pääaineena on TKO.',
+  'select',
   'easy',
+  'opiskelijat',
   0
 );
 
@@ -58,10 +41,12 @@ INSERT INTO example_answer (exercise, answer) VALUES (
 );
 
 -- Perusharjoitukset 3
-INSERT INTO exercise (id, description, type, creator) VALUES (
+INSERT INTO exercise (id, description, type, difficulty, "table", creator) VALUES (
   2,
   'Mitkä ovat Villen suorittamien kurssien arvosanat?',
+  'select',
   'easy',
+  'opiskelijat',
   0
 );
 
@@ -79,10 +64,12 @@ INSERT INTO exercise_list (id, description, creator) VALUES (1, 'Haastavat harjo
 SELECT setval('exercise_list_id_seq', 2);
 
 -- Haastavat harjoitukset 1
-INSERT INTO exercise (id, description, type, creator) VALUES (
+INSERT INTO exercise (id, description, type, difficulty, "table", creator) VALUES (
   3,
   'Lisää opiskelija nimeltä Matti tietokantaan. Matin opiskelijanumero on 1234 ja pääaine VT.',
+  'insert',
   'medium',
+  'opiskelijat',
   0
 );
 
@@ -92,10 +79,12 @@ INSERT INTO example_answer (exercise, answer) VALUES (
 );
 
 -- Haastavat harjoitukset 2
-INSERT INTO exercise (id, description, type, creator) VALUES (
+INSERT INTO exercise (id, description, type, difficulty, "table", creator) VALUES (
   4,
   'Poista opiskelija, jonka numero on 1234.',
+  'delete',
   'medium',
+  'opiskelijat',
   0
 );
 

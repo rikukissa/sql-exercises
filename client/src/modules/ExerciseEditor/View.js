@@ -117,10 +117,31 @@ const ExerciseForm = (props) => {
       <div>
         <label>Vaikeus</label>
         <div>
-          <Field name="type" component="select">
+          <Field name="difficulty" component="select">
             <option value="easy">Helppo</option>
             <option value="medium">Normaali</option>
             <option value="hard">Vaikea</option>
+          </Field>
+        </div>
+      </div>
+      <div>
+        <label>Kyselyn tyyppi</label>
+        <div>
+          <Field name="type" component="select">
+            <option value="select">select</option>
+            <option value="insert">insert</option>
+            <option value="update">update</option>
+            <option value="delete">delete</option>
+          </Field>
+        </div>
+      </div>
+      <div>
+        <label>Taulu jota tehtävässä käsitellään</label>
+        <div>
+          <Field name="table" component="select">
+            <option value="opiskelijat">opiskelijat</option>
+            <option value="kurssit">kurssit</option>
+            <option value="suoritukset">suoritukset</option>
           </Field>
         </div>
       </div>
@@ -195,7 +216,7 @@ class ExerciseEditor extends Component {
 
     const exerciseDefaults = existingExercise ?
       { ...existingExercise, answer: exampleAnswers[0] } :
-      { type: 'easy' };
+      { difficulty: 'easy', table: 'opiskelijat', type: 'select' };
 
     const exerciseEditMode = Boolean(existingExercise);
     const exerciseListEditMode = Boolean(existingExerciseList);

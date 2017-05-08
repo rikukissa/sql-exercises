@@ -219,6 +219,14 @@ function reducer(state = INITIAL_STATE, action) {
     case EXERCISE_CREATED: {
       return { ...state, exercises: state.exercises.concat(action.payload) };
     }
+    case EXERCISE_UPDATED: {
+      return {
+        ...state,
+        exercises: state.exercises.map((exercise) =>
+          exercise.id === action.payload.id ? action.payload : exercise,
+        ),
+      };
+    }
     case EXERCISE_LIST_CREATED: {
       return { ...state, exerciseLists: state.exerciseLists.concat(action.payload) };
     }
