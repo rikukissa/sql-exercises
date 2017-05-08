@@ -1,12 +1,12 @@
 package services;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.URISyntaxException;
 import java.util.Date;
 import org.sql2o.Connection;
+import services.utils.FileReader;
 import java.util.List;
+
 import static services.SessionTryService.*;
 
 public class SessionService {
@@ -89,15 +89,11 @@ public class SessionService {
     }
   }
 
-  public static Session createSession(Session session) throws SessionNotCreated, IOException {
+  public static Session createSession(Session session) throws SessionNotCreated, IOException, URISyntaxException {
     String sql = "INSERT INTO session (\"user\", exercise_list, started_at) " +
             "values (:user, :exerciseList, :startedAt)";
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-    List<String> lines = Files.readAllLines(
-      Paths.get(classLoader.getResource("queries/create_sandbox.sql").getPath()),
-      StandardCharsets.UTF_8
-    );
+    String sandboxInitSql = FileReader.getContent("queries/create_sandbox.sql");
 
     try(Connection con = DatabaseService.getConnection()) {
       int id = con
@@ -106,8 +102,7 @@ public class SessionService {
         .executeUpdate()
         .getKey(int.class);
 
-      String sandboxInitSql = String.join("\n", lines)
-        .replaceAll("SANDBOX_NAME", "sandbox" + id);
+      String amendedSandboxInitSql = sandboxInitSql.replaceAll("SANDBOX_NAME", "sandbox" + id);
 
       con.createQuery(sandboxInitSql).executeUpdate();
 

@@ -1,11 +1,9 @@
 package services;
 
 import org.sql2o.Connection;
+import services.utils.FileReader;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -87,13 +85,7 @@ public class ExerciseService {
   }
 
   public static List<Map<String,Object>> getExerciseReport() throws IOException {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-    List<String> lines = Files.readAllLines(
-      Paths.get(classLoader.getResource("reports/2.sql").getPath()),
-      StandardCharsets.UTF_8
-    );
-    String sql = String.join("\n", lines);
+    String sql = FileReader.getContent("reports/2.sql");
 
     try(Connection con = DatabaseService.getConnection()) {
       List<Map<String,Object>> report = con
@@ -105,13 +97,7 @@ public class ExerciseService {
   }
 
   public static List<Map<String,Object>> getExerciseByTypeReport() throws IOException {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-    List<String> lines = Files.readAllLines(
-      Paths.get(classLoader.getResource("reports/3.sql").getPath()),
-      StandardCharsets.UTF_8
-    );
-    String sql = String.join("\n", lines);
+    String sql = FileReader.getContent("reports/3.sql");
 
     try(Connection con = DatabaseService.getConnection()) {
       List<Map<String,Object>> report = con

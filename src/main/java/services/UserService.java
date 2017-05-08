@@ -1,11 +1,9 @@
 package services;
 
 import org.sql2o.Connection;
+import services.utils.FileReader;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -96,14 +94,7 @@ public class UserService {
   }
 
   public static List<Map<String,Object>> getUserReport() throws IOException {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-    List<String> lines = Files.readAllLines(
-      Paths.get(classLoader.getResource("reports/4.sql").getPath()),
-      StandardCharsets.UTF_8
-    );
-
-    String sql = String.join("\n", lines);
+    String sql = FileReader.getContent("reports/4.sql");
 
     try(Connection con = DatabaseService.getConnection()) {
       List<Map<String,Object>> report = con
