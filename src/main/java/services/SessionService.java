@@ -104,7 +104,7 @@ public class SessionService {
 
       String amendedSandboxInitSql = sandboxInitSql.replaceAll("SANDBOX_NAME", "sandbox" + id);
 
-      con.createQuery(sandboxInitSql).executeUpdate();
+      con.createQuery(amendedSandboxInitSql).executeUpdate();
 
       return SessionService.getSessionById(id);
     } catch (SessionNotFound err) {
