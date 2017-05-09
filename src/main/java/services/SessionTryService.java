@@ -117,7 +117,7 @@ public class SessionTryService {
 
   public static SessionTry answerExercise(SessionTry sessionTry, User user)
           throws SessionTryNotCreated, SessionNotFound, SessionTriesExceeded, ExerciseNotFound,
-                  SessionTrySyntaxError, SQLError {
+                  SessionTrySyntaxError, SQLError, SQLException {
 
     sessionTry.finishedAt = new Date();
     sessionTry.correct = false;
@@ -134,11 +134,13 @@ public class SessionTryService {
     // Is answer syntactically correct?
     if(sessionTry.answer.charAt((sessionTry.answer.length() -1)) != ';') {
       createSessionTry(sessionTry);
+      prepareSandboxForNextExercise(sessionTry, session, previousTries);
       throw new SessionTrySyntaxError();
     }
 
     if(!isValidSyntax(sessionTry.answer)) {
       createSessionTry(sessionTry);
+      prepareSandboxForNextExercise(sessionTry, session, previousTries);
       throw new SessionTrySyntaxError();
     }
 
@@ -190,9 +192,13 @@ public class SessionTryService {
       sessionTry.result = userAnswerResult;
       boolean correct = isEqualResult(correctAnswer, userAnswerResult);
       sessionTry.correct = correct;
-
+      boolean lastTry = previousTries.size() + 1 == session.maxTries;
       if(correct) {
         con.commit();
+      }
+      else if(lastTry) {
+        con.rollback(false);
+        prepareSandboxForNextExercise(sessionTry, session, previousTries);
       }
 
     } catch (Sql2oException err) {
@@ -254,6 +260,24 @@ public class SessionTryService {
       }
       return parNum1 == parNum2;
     }
+  }
+  private static void prepareSandboxForNextExercise(
+    SessionTry sessionTry,
+    Session session,
+    List<SessionTry> previousTries) throws SQLException, ExerciseNotFound, SQLError {
+    Exercise exercise = getExerciseById(sessionTry.exercise);
+    try(Connection con = DatabaseService.getTransaction()) {
+      con.getJdbcConnection().setSchema("sandbox" + session.id);
+      boolean lastTry = previousTries.size() + 1 == session.maxTries;
+      if(lastTry) {
+        con.getJdbcConnection().setSchema("sandbox" + session.id);
+        con.createQuery(exercise.exampleAnswers.get(0)).executeUpdate();
+        con.commit();
+      }
+    } catch (Sql2oException err) {
+      throw new SQLError(err.getMessage());
+    }
+
   }
 }
 
